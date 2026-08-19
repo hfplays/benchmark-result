@@ -6,16 +6,7 @@
 window.BENCHMARK_UPDATED['ryzen-5-7430u'] = '2026-08-20';
 
 const games7430u = {
-  'marvel-spiderman-2': "Marvel's Spider-Man 2",
-  'gta-v-legacy': 'Grand Theft Auto V Legacy',
-  'spider-man-miles-morales': 'Spider-Man: Miles Morales',
-  'marathon': 'Marathon',
-  'lego-batman-legacy-of-the-dark-knight': 'LEGO Batman Legacy of the Dark Knight',
-  'god-of-war-ragnarok': 'God of War Ragnarök',
-  'pragmata': 'Pragmata',
-  'resident-evil-requiem': 'Resident Evil Requiem',
-  'neverness-to-everness': 'NTE: Neverness to Everness',
-  'reanimal': 'REANIMAL'
+  'marvel-spiderman-2': "Marvel's Spider-Man 2"
 };
 
 window.BENCHMARK_GAMES['ryzen-5-7430u'] = games7430u;
@@ -28,33 +19,3 @@ window.BENCHMARK_GAMES['ryzen-5-7430u'] = games7430u;
 setBenchData('marvel-spiderman-2', 'ryzen-5-7430u', '1080p | Very Low', 17, 7);
 setBenchData('marvel-spiderman-2', 'ryzen-5-7430u', '900p | Very Low', 19, 10);
 setBenchData('marvel-spiderman-2', 'ryzen-5-7430u', '720p | Very Low', 24, 12);
-
-// GTA V Legacy
-setBenchData('gta-v-legacy', 'ryzen-5-7430u', '1080p | Normal', 52, 41);
-setBenchData('gta-v-legacy', 'ryzen-5-7430u', '1080p | High', 34, 25);
-setBenchData('gta-v-legacy', 'ryzen-5-7430u', '1080p | Very High', 29, 20);
-setBenchData('gta-v-legacy', 'ryzen-5-7430u', '1080p | Normal (Online)', 43, 28);
-
-// Marvel's Spider-Man: Miles Morales
-setBenchData('spider-man-miles-morales', 'ryzen-5-7430u', '1080p | Very Low', 15, 9);
-setBenchData('spider-man-miles-morales', 'ryzen-5-7430u', '900p | Very Low', 20, 14);
-setBenchData('spider-man-miles-morales', 'ryzen-5-7430u', '720p | Very Low', 27, 17);
-setBenchData('spider-man-miles-morales', 'ryzen-5-7430u', '720p FSR Ultra Performance | Very Low', 45, 28);
-
-// Marathon
-setBenchData('marathon', 'ryzen-5-7430u', '1080p FSR Ultra Performance | Low', 20, 15);
-setBenchData('marathon', 'ryzen-5-7430u', '720p FSR Ultra Performance | Low', 28, 20);
-
-// LEGO Batman Legacy of the Dark Knight
-setBenchData('lego-batman-legacy-of-the-dark-knight', 'ryzen-5-7430u', '1080p FSR Native AA | Low', 12, 9);
-setBenchData('lego-batman-legacy-of-the-dark-knight', 'ryzen-5-7430u', '1080p FSR Balanced | Low', 24, 20);
-setBenchData('lego-batman-legacy-of-the-dark-knight', 'ryzen-5-7430u', '1080p FSR Ultra Performance | Low', 32, 25);
-setBenchData('lego-batman-legacy-of-the-dark-knight', 'ryzen-5-7430u', '720p FSR Native AA | Low', 28, 11);
-setBenchData('lego-batman-legacy-of-the-dark-knight', 'ryzen-5-7430u', '720p FSR Balanced | Low', 40, 30);
-setBenchData('lego-batman-legacy-of-the-dark-knight', 'ryzen-5-7430u', '720p FSR Ultra Performance | Low', 48, 33);
-
-// God of War Ragnarök
-setBenchData('god-of-war-ragnarok', 'ryzen-5-7430u', '1080p FSR Ultra Performance | Low', 22, 7);
-
-// Pragmata
-setBenchData('pragmata', 'ryzen-5-7430u', '1080p FSR Performance | Low', 27, 14);

@@ -6,8 +6,7 @@
 window.BENCHMARK_UPDATED['celeron-n4000'] = '2026-08-19';
 
 const gamesCeleronN4000 = {
-  'split-fiction': 'Split Fiction',
-  'hollow-knight-silksong': 'Hollow Knight: silksong',
+  'hollow-knight-silksong': 'Hollow Knight: silksong'
 };
 
 window.BENCHMARK_GAMES['celeron-n4000'] = gamesCeleronN4000;
