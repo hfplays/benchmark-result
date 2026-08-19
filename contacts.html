@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Contacts — BenchmarkResult - HF Plays</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/style.css">
+    <script defer src="assets/data/data-init.js"></script>
+    <script defer src="assets/data/mobile/data-7430u.js"></script>
+    <script defer src="assets/data/mobile/data-n4000.js"></script>
+    <script defer src="assets/app.js"></script>
+</head>
+
+<body>
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a class="brand" href="index.html">Benchmark<span>Result</span> - HF Plays</a>
+
+            <!-- Tombol Hamburger Mobile -->
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Menu Links -->
+            <div class="links" id="navLinks">
+                <a href="index.html">Home</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="device"></div>
+                </div>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Desktop <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
+                </div>
+                <a href="search.html">Search</a>
+                <a class="active" href="contacts.html">Contacts</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="eyebrow anim-title">
+            <h1>Get in Touch</h1>
+        </div>
+
+        <div class="contact-layout">
+            <!-- Left Column: Form -->
+            <div class="glass-card card-left">
+                <h3>Send a Message</h3>
+                <p class="desc">Submit game benchmark suggestions, ask hardware questions, or send testing feedback.</p>
+
+                <form class="contact-form" id="contactForm" onsubmit="handleFormSubmit(event)">
+                    <!-- Custom Dropdown Platform -->
+                    <div class="form-group">
+                        <input type="hidden" id="platformSelect" value="email">
+                        <div class="custom-select-wrapper" id="customDropdown">
+                            <div class="custom-select-trigger" onclick="toggleDropdown()">
+                                <span class="selected-val" id="selectedDisplay">
+                                    <i class="fa-regular fa-envelope icon-email"></i> Send via Email
+                                </span>
+                                <i class="fa-solid fa-chevron-down chevron"></i>
+                            </div>
+                            <div class="custom-options">
+                                <!-- Option: Email (Aktif) -->
+                                <div class="custom-option selected" data-value="email"
+                                    onclick="selectPlatform('email', '<i class=\'fa-regular fa-envelope icon-email\'></i> Send via Email', this)">
+                                    <div class="custom-option-label">
+                                        <i class="fa-regular fa-envelope icon-email"></i> Send via Email
+                                    </div>
+                                </div>
+
+                                <!-- Option: WhatsApp (Status: Coming Soon) -->
+                                <div class="custom-option disabled" data-value="whatsapp">
+                                    <div class="custom-option-label">
+                                        <i class="fa-brands fa-whatsapp icon-wa"></i> Send via WhatsApp
+                                    </div>
+                                    <span class="coming-soon-badge">Coming Soon</span>
+                                </div>
+
+                                <!-- =========================================================================
+                                     CARA MENGAKTIFKAN WHATSAPP NANTI:
+                                     Hapus baris WhatsApp (disabled) di atas, lalu UNKOMEN baris di bawah ini:
+                                     ========================================================================= -->
+                                <!--
+                                <div class="custom-option" data-value="whatsapp" onclick="selectPlatform('whatsapp', '<i class=\'fa-brands fa-whatsapp icon-wa\'></i> Send via WhatsApp', this)">
+                                    <div class="custom-option-label">
+                                        <i class="fa-brands fa-whatsapp icon-wa"></i> Send via WhatsApp
+                                    </div>
+                                </div>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" id="name" name="name" class="form-input" placeholder="Full Name"
+                            autocomplete="name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="contactInfo" name="contactInfo" class="form-input"
+                            placeholder="Your Email / Phone Number" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" name="message" class="form-textarea"
+                            placeholder="Comments, Game Title, or Message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Submit Message</button>
+                </form>
+            </div>
+
+            <!-- Right Column: Channels & Social Profiles -->
+            <!-- Right Column: Channels & Social Profiles -->
+            <div class="glass-card card-right">
+                <h3>Official Channels</h3>
+                <p class="desc">Follow for direct game testing footage, system configurations, and performance archives.
+                </p>
+
+                <div class="info-list">
+                    <a href="https://www.youtube.com/@hfplays" target="_blank" rel="noopener noreferrer"
+                        class="info-item">
+                        <i class="fa-brands fa-youtube" style="color: #ff0000;"></i>
+                        <span>HF Plays</span>
+                    </a>
+                    <a href="https://www.tiktok.com/@6hfplays" target="_blank" rel="noopener noreferrer"
+                        class="info-item">
+                        <i class="fa-brands fa-tiktok" style="color: #ffff;"></i>
+                        <span>HF Plays</span>
+                    </a>
+                    <a href="https://website.hfplays.my.id/" target="_blank" rel="noopener noreferrer"
+                        class="info-item">
+                        <i class="fa-solid fa-globe" style="color: #60a5fa;"></i>
+                        <span>HF Plays - Landing Page</span>
+                    </a>
+                </div>
+
+                <div class="social-section">
+                    <div class="divider"></div>
+                    <h4>DIRECT COMMUNITY & PROFILES</h4>
+                    <div class="social-links">
+                        <a href="https://www.youtube.com/@hfplays" target="_blank" rel="noopener noreferrer"
+                            title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="https://www.tiktok.com/@6hfplays" target="_blank" rel="noopener noreferrer"
+                            title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://discord.com/users/790507566333558784" target="_blank" rel="noopener noreferrer"
+                            title="Discord"><i class="fa-brands fa-discord"></i></a>
+                        <a href="https://www.instagram.com/hfplays/" target="_blank" rel="noopener noreferrer"
+                            title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.facebook.com/HFPlays/" target="_blank" rel="noopener noreferrer"
+                            title="Facebook"><i class="fa-brands fa-facebook-messenger"></i></a>
+                        <a href="https://www.linkedin.com/in/hilmi-fauzan-245a14428/" target="_blank"
+                            rel="noopener noreferrer" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <footer class="footer anim-footer">
+        <div class="container"></div>
+    </footer>
+
+    <script>
+        // Custom Dropdown Handler
+        function toggleDropdown() {
+            document.getElementById('customDropdown').classList.toggle('open');
+        }
+
+        function selectPlatform(val, html, element) {
+            if (element.classList.contains('disabled')) return;
+
+            document.getElementById('platformSelect').value = val;
+            document.getElementById('selectedDisplay').innerHTML = html;
+
+            document.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+
+            document.getElementById('customDropdown').classList.remove('open');
+        }
+
+        // Close dropdown when clicked outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('customDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // Form Submit Handler (Support Email & WhatsApp)
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const platform = document.getElementById('platformSelect').value;
+            const name = document.getElementById('name').value.trim();
+            const contact = document.getElementById('contactInfo').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            if (platform === 'email') {
+                const subject = encodeURIComponent(`Benchmark Inquiry from ${name}`);
+                const body = encodeURIComponent(`Hello HF Plays,\n\nSender Name: ${name}\nContact / Email: ${contact}\n\nMessage:\n${message}`);
+                window.location.href = `mailto:hilmipc06@gmail.com?subject=${subject}&body=${body}`;
+            }
+            else if (platform === 'whatsapp') {
+                // =============================================================
+                // LOGIKA WHATSAPP (Otomatis berjalan jika WhatsApp di-unkomen)
+                // =============================================================
+                const waNumber = '6283874760794'; // Nomor WhatsApp Anda
+                const waText = `New message via BenchmarkResult - HF Plays Website:%0A%0A*Name:* ${encodeURIComponent(name)}%0A*Contact:* ${encodeURIComponent(contact)}%0A*Message:*%0A${encodeURIComponent(message)}`;
+                window.open(`https://wa.me/${waNumber}?text=${waText}`, '_blank');
+            }
+        }
+    </script>
+</body>
+
+</html>

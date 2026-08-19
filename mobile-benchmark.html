@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mobile Benchmark — BenchmarkResult - HF Plays</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+    <script defer src="assets/data/data-init.js"></script>
+    <script defer src="assets/data/mobile/data-7430u.js"></script>
+    <script defer src="assets/data/mobile/data-n4000.js"></script>
+    <script defer src="assets/app.js"></script>
+</head>
+
+<body>
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a class="brand" href="index.html">Benchmark<span>Result</span> - HF Plays</a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="links" id="navLinks">
+                <a href="index.html">Home</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="device"></div>
+                </div>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Desktop <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
+                </div>
+                <a href="search.html">Search</a>
+                <a href="contacts.html">Contacts</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="hero">
+            <div class="eyebrow">Mobile benchmark</div>
+            <h1>Explore mobile hardware performance.</h1>
+            <p>Choose a device to browse benchmark results and compare real-world gaming performance across different
+                resolutions and settings.</p>
+        </section>
+
+        <section class="section">
+            <div class="device-grid">
+                <a class="device-card" href="device/mobile/ryzen-5-7430u.html" data-device-platform="ryzen-5-7430u">
+                    <div class="device-badge-row">
+                        <span class="device-badge">mobile</span>
+                        <span class="device-updated" data-device-updated></span>
+                    </div>
+                    <h3>Ryzen 5 7430U</h3>
+                    <p>Integrated Radeon Graphics benchmark archive for modern mid-range laptop performance.</p>
+                </a>
+
+                <a class="device-card" href="device/mobile/celeron-n4000.html" data-device-platform="celeron-n4000">
+                    <div class="device-badge-row">
+                        <span class="device-badge">mobile</span>
+                        <span class="device-updated" data-device-updated></span>
+                    </div>
+                    <h3>Celeron N4000</h3>
+                    <p>Low-power entry-level mobile test data for older Intel UHD graphics laptops.</p>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container"></div>
+    </footer>
+</body>
+
+</html>

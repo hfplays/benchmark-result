@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Search — BenchmarkResult - HF Plays</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+    <script defer src="assets/data/data-init.js"></script>
+    <script defer src="assets/data/mobile/data-7430u.js"></script>
+    <script defer src="assets/data/mobile/data-n4000.js"></script>
+    <script defer src="assets/app.js"></script>
+</head>
+
+<body>
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a class="brand" href="index.html">Benchmark<span>Result</span> - HF Plays</a>
+
+            <!-- Tombol Hamburger Mobile -->
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Menu Links -->
+            <div class="links" id="navLinks">
+                <a href="index.html">Home</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="device"></div>
+                </div>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Desktop <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
+                </div>
+                <a class="active" href="search.html">Search</a>
+                <a href="contacts.html">Contacts</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="eyebrow anim-title">
+            <h1>Search</h1>
+        </div>
+        <section class="section search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search game by title or platform..."
+                    autocomplete="off">
+            </div>
+            <div class="section-heading">
+                <div class="game-sort" aria-label="Sort games">
+                    <span>Sort</span>
+                    <button type="button" class="is-active" data-search-sort="latest" title="Latest"
+                        aria-label="Sort by latest"><i class="fa-solid fa-clock"></i></button>
+                    <button type="button" data-search-sort="alphabetical" title="Alphabetical"
+                        aria-label="Sort alphabetically"><i class="fa-solid fa-arrow-down-a-z"></i></button>
+                </div>
+            </div>
+            <div id="resultsContainer" class="search-results"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container"></div>
+    </footer>
+</body>
+
+</html>
