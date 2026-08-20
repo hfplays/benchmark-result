@@ -12,6 +12,13 @@
     <script defer src="assets/data/mobile/data-7430u.js"></script>
     <script defer src="assets/data/mobile/data-n4000.js"></script>
     <script defer src="assets/app.js"></script>
+    <script>
+        (function () {
+            const saved = localStorage.getItem('hf_theme');
+            const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', saved || (sysDark ? 'dark' : 'light'));
+        })();
+    </script>
 </head>
 
 <body>
@@ -37,11 +44,25 @@
                             class="fa-solid fa-chevron-down"></i></button>
                     <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
                 </div>
-                <a href="search.html">Search</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Phone <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="phone"></div>
+                </div>
                 <a href="contacts.html">Contacts</a>
+                <a href="search.html" aria-label="Search" title="Search" class="nav-search-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </a>
+
+                <!-- Tombol Toggle Tema -->
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme"
+                    type="button">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
             </div>
         </div>
     </nav>
+
     <main class="container">
         <section class="hero">
             <div class="eyebrow">Benchmark database</div>
@@ -51,16 +72,19 @@
             <div class="actions">
                 <a class="btn primary" href="mobile-benchmark.html">Explore Mobile</a>
                 <a class="btn primary" href="desktop-benchmark.html">Explore Desktop</a>
+                <a class="btn btn-coming-soon" href="javascript:void(0)">Explore Phone</a>
             </div>
         </section>
-        <section class="section">
-            <h2>Discovery</h2>
-            <p class="copy">Featuring the 10 latest game tests from any platform on HF Plays, listed from newest to
-                oldest.<br>Click any game to jump directly to its individual benchmark page..</p>
-            <div class="text-links">
-                <a href="bench/mobile/ryzen-7430u/marvel-spiderman-2.html">Marvel's Spider-Man 2 | Ryzen 5 7430U →</a>
-                <a href="bench/mobile/celeron-n4000/hollow-knight-silksong.html">Hollow Knight: Silksong | Celeron N4000 →</a>
+        <section class="section discovery-section">
+            <div class="section-head-wrap">
+                <h2>Discovery</h2>
+                <p class="copy">
+                    Featuring the 10 latest game tests from any platform on HF Plays, listed from newest to oldest.<br>
+                    Click any game to jump directly to its individual benchmark page.
+                </p>
             </div>
+
+            <div class="discovery-grid" id="discoveryContainer"></div>
         </section>
     </main>
     <footer class="footer">

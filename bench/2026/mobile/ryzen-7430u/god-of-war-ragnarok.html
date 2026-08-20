@@ -5,39 +5,48 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>God of War Ragnarok — Ryzen 5 7430U Benchmark</title>
-    <link rel="icon" type="image/x-icon" href="../../../favicon.ico">
-    <link rel="stylesheet" href="../../../assets/style.css">
+    <link rel="icon" type="image/x-icon" href="../../../../favicon.ico">
+    <link rel="stylesheet" href="../../../../assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
 </head>
 
-<body data-game="god-of-war-ragnarok" data-platform="ryzen-5-7430u">
+<body data-game="god-of-war-ragnarok" data-platform="ryzen-5-7430u" data-year="2026">
     <nav class="nav">
-        <div class="container nav-inner">
-            <a class="brand" href="../../../index.html">Benchmark<span>Result</span> - HF Plays</a>
+    <div class="container nav-inner">
+        <a class="brand" href="../../../../index.html">Benchmark<span>Result</span> - HF Plays</a>
 
-            <!-- Tombol Hamburger Mobile -->
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+        <!-- Tombol Hamburger Mobile -->
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button">
+            <i class="fa-solid fa-bars"></i>
+        </button>
 
-            <!-- Menu Links -->
-            <div class="links" id="navLinks">
-                <a href="../../../index.html">Home</a>
-                <div class="nav-dropdown">
-                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile <i
-                            class="fa-solid fa-chevron-down"></i></button>
-                    <div class="nav-dropdown-menu" data-dropdown-menu="device"></div>
-                </div>
-                <div class="nav-dropdown">
-                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Desktop <i
-                            class="fa-solid fa-chevron-down"></i></button>
-                    <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
-                </div>
-                <a href="../../../search.html">Search</a>
-                <a href="../../../contacts.html">Contacts</a>
+        <!-- Menu Links -->
+        <div class="links" id="navLinks">
+            <a href="../../../../index.html">Home</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown-menu" data-dropdown-menu="device"></div>
             </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Desktop <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Phone <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown-menu" data-dropdown-menu="phone"></div>
+            </div>
+            <a href="../../../../contacts.html">Contacts</a>
+            <a href="../../../../search.html" aria-label="Search" title="Search" class="nav-search-btn">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </a>
+
+            <!-- Tombol Toggle Tema -->
+            <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme" type="button">
+                <i class="fa-solid fa-sun"></i>
+            </button>
         </div>
-    </nav>
+    </div>
+</nav>
     <main class="container">
         <div class="bench-head">
             <div>
@@ -55,10 +64,15 @@
                     </select>
                     <button type="button" class="select-btn" aria-haspopup="listbox" aria-expanded="false">
                         <span class="selected-text">1080p</span>
-                        <svg class="arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                            aria-hidden="true">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </button>
                     <ul class="select-dropdown" role="listbox" aria-label="Resolution options">
-                        <li role="option" data-value="1080p FSR Ultra Performance | Low" aria-selected="true" class="active">1080p</li>
+                        <li role="option" data-value="1080p FSR Ultra Performance | Low" aria-selected="true"
+                            class="active">1080p</li>
                     </ul>
                 </div>
             </div>
@@ -101,7 +115,7 @@
                 severe drops to 7 FPS (1% Low).</p>
         </section>
         <div class="actions">
-            <a class="btn" href="../../../device/mobile/ryzen-5-7430u.html">← Back to Ryzen 5 7430U</a>
+            <a class="btn" href="../../../../device/mobile/ryzen-5-7430u.html">← Back to Ryzen 5 7430U</a>
             <a class="btn-youtube" href="https://youtu.be/ghRHKqiDlu4" target="_blank">
                 <i class="fab fa-youtube"></i>
                 Watch on YouTube
@@ -112,9 +126,16 @@
         <div class="container"></div>
     </footer>
 
-    <script defer src="../../../assets/data/data-init.js"></script>
-    <script defer src="../../../assets/data/mobile/data-7430u.js"></script>
-    <script defer src="../../../assets/app.js"></script>
+    <script defer src="../../../../assets/data/data-init.js"></script>
+    <script defer src="../../../../assets/data/mobile/data-7430u.js"></script>
+    <script defer src="../../../../assets/app.js"></script>
+<script>
+  (function() {
+    const saved = localStorage.getItem('hf_theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', saved || (sysDark ? 'dark' : 'light'));
+  })();
+</script>
 </body>
 
 </html>

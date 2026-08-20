@@ -5,19 +5,26 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Page Not Yet Available — BenchmarkResult - HF Plays</title>
-    <link rel="icon" type="image/x-icon" href="../../../favicon.ico">
-    <link rel="stylesheet" href="../../../assets/style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
-    <script defer src="../../../assets/data/data-init.js"></script>
-    <script defer src="../../../assets/data/mobile/data-7430u.js"></script>
-    <script defer src="../../../assets/data/mobile/data-n4000.js"></script>
-    <script defer src="../../../assets/app.js"></script>
+    <script defer src="assets/data/data-init.js"></script>
+    <script defer src="assets/data/mobile/data-7430u.js"></script>
+    <script defer src="assets/data/mobile/data-n4000.js"></script>
+    <script defer src="assets/app.js"></script>
+    <script>
+      (function() {
+        const saved = localStorage.getItem('hf_theme');
+        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', saved || (sysDark ? 'dark' : 'light'));
+      })();
+    </script>
 </head>
 
 <body>
     <nav class="nav">
         <div class="container nav-inner">
-            <a class="brand" href="../../../index.html">Benchmark<span>Result</span> - HF Plays</a>
+            <a class="brand" href="index.html">Benchmark<span>Result</span> - HF Plays</a>
 
             <!-- Tombol Hamburger Mobile -->
             <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button">
@@ -26,7 +33,7 @@
 
             <!-- Menu Links -->
             <div class="links" id="navLinks">
-                <a href="../../../index.html">Home</a>
+                <a href="index.html">Home</a>
                 <div class="nav-dropdown">
                     <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile <i
                             class="fa-solid fa-chevron-down"></i></button>
@@ -37,8 +44,21 @@
                             class="fa-solid fa-chevron-down"></i></button>
                     <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
                 </div>
-                <a href="../../../search.html">Search</a>
-                <a href="../../../contacts.html">Contacts</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Phone <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="phone"></div>
+                </div>
+                <a href="contacts.html">Contacts</a>
+                <a href="search.html" aria-label="Search" title="Search" class="nav-search-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </a>
+
+                <!-- Tombol Toggle Tema -->
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme"
+                    type="button">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -53,8 +73,8 @@
             <p>The benchmark page or resource you are trying to access is currently being prepared, tested, or is under
                 active development.</p>
             <div class="actions" style="justify-content: center; margin-top: 0;">
-                <a href="../../../device/mobile/ryzen-5-7430u.html" class="btn primary">
-                    <i class="fa-solid fa-arrow-left"></i> Return
+                <a href="index.html" class="btn primary">
+                    <i class="fa-solid fa-arrow-left"></i> Return to Home
                 </a>
             </div>
         </section>

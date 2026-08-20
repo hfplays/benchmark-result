@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Page Not Yet Available — BenchmarkResult - HF Plays</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../../favicon.ico">
     <link rel="stylesheet" href="../../assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <script defer src="../../assets/data/data-init.js"></script>
@@ -17,7 +17,7 @@
 <body>
     <nav class="nav">
         <div class="container nav-inner">
-            <a class="brand" href="index.html">Benchmark<span>Result</span> - HF Plays</a>
+            <a class="brand" href="../../index.html">Benchmark<span>Result</span> - HF Plays</a>
 
             <!-- Tombol Hamburger Mobile -->
             <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button">
@@ -37,8 +37,21 @@
                             class="fa-solid fa-chevron-down"></i></button>
                     <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
                 </div>
-                <a href="../../search.html">Search</a>
-                <a href="../../index.html">Contacts</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Phone <i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <div class="nav-dropdown-menu" data-dropdown-menu="phone"></div>
+                </div>
+                <a href="../../contacts.html">Contacts</a>
+                <a href="../../search.html" aria-label="Search" title="Search" class="nav-search-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </a>
+
+                <!-- Tombol Toggle Tema -->
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme"
+                    type="button">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
             </div>
         </div>
     </nav>
