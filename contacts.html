@@ -8,17 +8,48 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <link rel="stylesheet" href="assets/style.css">
+    <style>
+        @media (max-width: 768px) {
+            .anim-title {
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .anim-title h1 {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
     <script defer src="assets/data/data-init.js"></script>
-    <script defer src="assets/data/mobile/data-7430u.js"></script>
-    <script defer src="assets/data/mobile/data-n4000.js"></script>
+    <script defer src="assets/data/db.js"></script>
     <script defer src="assets/app.js"></script>
     <script>
-        (function () {
-            const saved = localStorage.getItem('hf_theme');
-            const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute('data-theme', saved || (sysDark ? 'dark' : 'light'));
-        })();
-    </script>
+    (function () {
+        const savedTheme = localStorage.getItem('hf_theme') || localStorage.getItem('hfplays_theme');
+        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (sysDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-bs-theme', theme);
+
+        // Deteksi Mobile
+        const isMobile = window.innerWidth <= 780 || window.matchMedia('(max-width: 780px)').matches || window.matchMedia('(pointer: coarse)').matches;
+        
+        // Ambil data view
+        let savedView = localStorage.getItem('hf_view_mode') || localStorage.getItem('hfplays_view');
+        
+        // Jika belum ada pilihan tersimpan, default ke 'lite' untuk mobile
+        if (!savedView) {
+            savedView = isMobile ? 'lite' : 'normal';
+        }
+
+        document.documentElement.setAttribute('data-view', savedView);
+    })();
+</script>
 </head>
 
 <body>
@@ -55,6 +86,12 @@
                 </a>
 
                 <!-- Tombol Toggle Tema -->
+                <!-- Tombol Toggle Lite Mode (Ringan) -->
+                <button class="view-toggle-btn" id="viewToggle" aria-label="Toggle Lite View"
+                    title="Switch to Lite Performance Mode" type="button">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                </button>
+
                 <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme"
                     type="button">
                     <i class="fa-solid fa-sun"></i>
@@ -101,18 +138,6 @@
                                     </div>
                                     <span class="coming-soon-badge">Coming Soon</span>
                                 </div>
-
-                                <!-- =========================================================================
-                                     CARA MENGAKTIFKAN WHATSAPP NANTI:
-                                     Hapus baris WhatsApp (disabled) di atas, lalu UNKOMEN baris di bawah ini:
-                                     ========================================================================= -->
-                                <!--
-                                <div class="custom-option" data-value="whatsapp" onclick="selectPlatform('whatsapp', '<i class=\'fa-brands fa-whatsapp icon-wa\'></i> Send via WhatsApp', this)">
-                                    <div class="custom-option-label">
-                                        <i class="fa-brands fa-whatsapp icon-wa"></i> Send via WhatsApp
-                                    </div>
-                                </div>
-                                -->
                             </div>
                         </div>
                     </div>
@@ -134,7 +159,6 @@
             </div>
 
             <!-- Right Column: Channels & Social Profiles -->
-            <!-- Right Column: Channels & Social Profiles -->
             <div class="glass-card card-right">
                 <h3>Official Channels</h3>
                 <p class="desc">Follow for direct game testing footage, system configurations, and performance archives.
@@ -154,7 +178,7 @@
                     <a href="https://landing.hfplays.my.id/" target="_blank" rel="noopener noreferrer"
                         class="info-item">
                         <i class="fa-solid fa-globe" style="color: #60a5fa;"></i>
-                        <span>HF Plays - Landing Page</span>
+                        <span>Main Portal</span>
                     </a>
                 </div>
 
@@ -177,7 +201,6 @@
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </main>
 
@@ -211,7 +234,7 @@
             }
         });
 
-        // Form Submit Handler (Support Email & WhatsApp)
+        // Form Submit Handler
         function handleFormSubmit(e) {
             e.preventDefault();
 
@@ -226,10 +249,7 @@
                 window.location.href = `mailto:hilmipc06@gmail.com?subject=${subject}&body=${body}`;
             }
             else if (platform === 'whatsapp') {
-                // =============================================================
-                // LOGIKA WHATSAPP (Otomatis berjalan jika WhatsApp di-unkomen)
-                // =============================================================
-                const waNumber = '6283874760794'; // Nomor WhatsApp Anda
+                const waNumber = '6283874760794';
                 const waText = `New message via BenchmarkResult - HF Plays Website:%0A%0A*Name:* ${encodeURIComponent(name)}%0A*Contact:* ${encodeURIComponent(contact)}%0A*Message:*%0A${encodeURIComponent(message)}`;
                 window.open(`https://wa.me/${waNumber}?text=${waText}`, '_blank');
             }

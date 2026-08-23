@@ -1,14 +1,22 @@
 // ============================================================================
-// Theme Management (Dark / Light Mode)
+// Theme & Lite View Management (Default Eco/Lite di Mobile & Tablet <= 865px)
 // ============================================================================
 
-(function initTheme() {
+(function initPreferences() {
   const THEME_KEY = 'hf_theme';
+  const VIEW_KEY = 'hf_view_mode';
+
   const savedTheme = localStorage.getItem(THEME_KEY);
   const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-
   document.documentElement.setAttribute('data-theme', initialTheme);
+
+  // Deteksi Mobile & Tablet (<= 865px)
+  const isMobile = window.innerWidth <= 865 || window.matchMedia('(max-width: 865px)').matches || window.matchMedia('(pointer: coarse)').matches;
+  const defaultView = isMobile ? 'lite' : 'normal';
+
+  const savedView = localStorage.getItem(VIEW_KEY) || defaultView;
+  document.documentElement.setAttribute('data-view', savedView);
 })();
 
 function setupThemeToggle() {
@@ -41,20 +49,42 @@ function setupThemeToggle() {
   });
 }
 
-// ============================================================================
-// Security & Browser Shortcut Protection
-// ============================================================================
+function setupViewToggle() {
+  const VIEW_KEY = 'hf_view_mode';
+  const toggleBtns = document.querySelectorAll('.view-toggle-btn');
+  if (!toggleBtns.length) return;
 
-document.addEventListener('contextmenu', (e) => e.preventDefault());
-document.addEventListener('keydown', (e) => {
-  if (
-    e.key === 'F12' ||
-    (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
-    (e.ctrlKey && ['U', 'u'].includes(e.key))
-  ) {
-    e.preventDefault();
-  }
-});
+  const updateUI = (view) => {
+    toggleBtns.forEach((btn) => {
+      if (view === 'lite') {
+        btn.classList.add('is-lite');
+        btn.innerHTML = '<i class="fa-solid fa-bolt"></i>';
+        btn.setAttribute('title', 'Eco Mode Active (Click for Rich Mode)');
+        btn.setAttribute('aria-label', 'Eco Mode Active. Switch to Rich Mode');
+      } else {
+        btn.classList.remove('is-lite');
+        btn.innerHTML = '<i class="fa-solid fa-feather-pointed"></i>';
+        btn.setAttribute('title', 'Switch to Eco Mode');
+        btn.setAttribute('aria-label', 'Switch to Eco Mode');
+      }
+    });
+  };
+
+  const isMobile = window.innerWidth <= 865 || window.matchMedia('(max-width: 865px)').matches || window.matchMedia('(pointer: coarse)').matches;
+  const currentView = document.documentElement.getAttribute('data-view') || (isMobile ? 'lite' : 'normal');
+  updateUI(currentView);
+
+  toggleBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-view') || 'normal';
+      const nextView = current === 'lite' ? 'normal' : 'lite';
+
+      document.documentElement.setAttribute('data-view', nextView);
+      localStorage.setItem(VIEW_KEY, nextView);
+      updateUI(nextView);
+    });
+  });
+}
 
 // ============================================================================
 // Mobile Header Menu (Drawer / Toggle)
@@ -84,6 +114,45 @@ if (navToggle && navLinks) {
     }
   });
 }
+
+// ============================================================================
+// Top Privacy Policy Notice Banner (Under Navbar)
+// ============================================================================
+
+(function initPrivacyTopNotice() {
+  const NOTICE_DISMISSED_KEY = 'hf_privacy_top_dismissed';
+
+  if (localStorage.getItem(NOTICE_DISMISSED_KEY)) return;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const nav = document.querySelector('.nav') || document.querySelector('nav');
+    if (!nav) return;
+
+    const noticeBar = document.createElement('div');
+    noticeBar.id = 'privacyTopNotice';
+    noticeBar.className = 'privacy-top-notice';
+    noticeBar.innerHTML = `
+      <div class="container privacy-top-notice-inner">
+        <div class="privacy-top-notice-content">
+          <i class="fa-solid fa-shield-halved privacy-top-notice-icon"></i>
+          <span>We respect your privacy and do not track personal data. Read our <a href="${buildRelativeHref('privacy-policy.html')}" class="privacy-top-notice-link">Privacy Policy</a>.</span>
+        </div>
+        <button class="privacy-top-notice-close" id="closePrivacyNoticeBtn" type="button" aria-label="Dismiss Privacy Notice">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    `;
+
+    nav.insertAdjacentElement('afterend', noticeBar);
+    requestAnimationFrame(() => noticeBar.classList.add('show'));
+
+    document.getElementById('closePrivacyNoticeBtn')?.addEventListener('click', () => {
+      localStorage.setItem(NOTICE_DISMISSED_KEY, 'true');
+      noticeBar.classList.remove('show');
+      setTimeout(() => noticeBar.remove(), 250);
+    });
+  });
+})();
 
 // ============================================================================
 // Cookie Consent Management
@@ -134,63 +203,94 @@ if (navToggle && navLinks) {
       localStorage.setItem(ACCEPT_KEY, 'true');
       localStorage.removeItem(REJECT_KEY);
       banner.classList.remove('show');
-      setTimeout(() => banner.remove(), 400);
+      banner.remove();
     });
 
     document.getElementById('rejectCookieBtn')?.addEventListener('click', () => {
       localStorage.setItem(REJECT_KEY, String(Date.now() + REJECT_DURATION_MS));
       localStorage.removeItem(ACCEPT_KEY);
       banner.classList.remove('show');
-      setTimeout(() => banner.remove(), 400);
+      banner.remove();
     });
   });
 })();
 
 // ============================================================================
-// Constants & Central Device Registry (Multi-Year Support)
+// Constants & Central Device Registry (Single Template Architecture)
 // ============================================================================
 
 const DEFAULT_PLATFORM = 'ryzen-5-7430u';
 const DEFAULT_RESULT = { avg: 0, low: 0 };
-const MIN_CHART_HEIGHT = 90;
+const MIN_CHART_HEIGHT = 75;
 const MAX_PERCENTAGE = 100;
-const DECIMAL_PLACES = 1;
+const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+let allGamesCache = null;
+const platformGamesCache = new Map();
 
 const DEVICE_REGISTRY = {
-  // Mobile (Laptop / APU)
   'ryzen-5-7430u': {
     label: 'Ryzen 5 7430U',
     category: 'mobile',
-    subPath: 'mobile/ryzen-7430u',
-    getData: () => window.games7430u || (typeof games7430u !== 'undefined' ? games7430u : {}),
+    kicker: 'Tecno Megabook K16S · 16" WUXGA (1920×1200)',
+    specs: [
+      'Processor: AMD Ryzen 5 7430U (2.30 GHz, boost up to 4.35 GHz)',
+      'Graphics: AMD Radeon Graphics RX Vega 7 (1024 MB)',
+      'RAM: 16GB (2×8GB) DDR4 3200MHz',
+      'Storage: FORESEE 512GB M.2 NVMe 3.0 SSD',
+      'OS: Windows 11 Home Single Language x64',
+    ],
+    getData: () => window.BENCHMARK_GAMES['ryzen-5-7430u'] || {},
   },
   'celeron-n4000': {
     label: 'Celeron N4000',
     category: 'mobile',
-    subPath: 'mobile/celeron-n4000',
-    getData: () => window.gamesCeleronN4000 || (typeof gamesCeleronN4000 !== 'undefined' ? gamesCeleronN4000 : {}),
+    kicker: 'Acer Aspire 3 A314-32-C3X0 · 14" HD (1366×768)',
+    specs: [
+      'Processor: Intel Celeron N4000 (1.10 GHz, boost up to 2.60 GHz)',
+      'Graphics: Intel UHD Graphics 600 (128MB)',
+      'RAM: 8GB (4GB LPDDR4 Onboard + 4GB DDR4 2400MHz)',
+      'Storage: ADATA SU650 240GB 2.5" SATA SSD',
+      'OS: Windows 10 Home Single Language x64',
+    ],
+    getData: () => window.BENCHMARK_GAMES['celeron-n4000'] || {},
   },
-
-  // Desktop
-  'ryzen-5-5500': {
-    label: 'Ryzen 5 5500',
+  'ryzen-5-5500-rx-6600': {
+    label: 'Ryzen 5 5500 + RX 6600',
     category: 'desktop',
-    subPath: 'desktop/ryzen-5500',
-    getData: () => window.gamesRyzen5500 || (typeof gamesRyzen5500 !== 'undefined' ? gamesRyzen5500 : {}),
+    kicker: 'Custom-Built PC',
+    specs: [
+      'Processor: AMD Ryzen 5 5500 3.6GHz',
+      'Graphics: AMD Radeon RX 6600 Challenger D 8GB GDDR6',
+      'RAM: VenomRX 2x8GB DDR4 3200MHz + KYO Kaizen 16GB DDR4 3200MHz',
+      'OS: Windows 11 Home x64',
+    ],
+    getData: () => window.BENCHMARK_GAMES['ryzen-5-5500-rx-6600'] || {},
   },
-
-  // Phone
+  'ryzen-5-5500-gt-1030-gd5': {
+    label: 'Ryzen 5 5500 + GT 1030',
+    category: 'desktop',
+    kicker: 'Custom-Built PC',
+    specs: [
+      'Processor: AMD Ryzen 5 5500 3.6GHz',
+      'Graphics: ASUS NVIDIA GeForce GT 1030 2GB GDDR5',
+      'RAM: VenomRX 2x8GB DDR4 3200MHz + KYO Kaizen 16GB DDR4 3200MHz',
+      'OS: Windows 11 Home x64',
+    ],
+    getData: () => window.BENCHMARK_GAMES['ryzen-5-5500-gt-1030-gd5'] || {},
+  },
   'iqoo-z9x': {
     label: 'iQOO Z9x',
     category: 'phone',
-    subPath: 'phone/iqoo-z9x',
-    getData: () => window.gamesIqooZ9x || (typeof gamesIqooZ9x !== 'undefined' ? gamesIqooZ9x : {}),
+    getData: () => window.BENCHMARK_GAMES['iqoo-z9x'] || (typeof gamesIqooZ9x !== 'undefined' ? gamesIqooZ9x : {}),
   },
   'poco-x3-pro': {
     label: 'POCO X3 Pro',
     category: 'phone',
-    subPath: 'phone/poco-x3-pro',
-    getData: () => window.gamesPocoX3Pro || (typeof gamesPocoX3Pro !== 'undefined' ? gamesPocoX3Pro : {}),
+    getData: () => window.BENCHMARK_GAMES['poco-x3-pro'] || (typeof gamesPocoX3Pro !== 'undefined' ? gamesPocoX3Pro : {}),
   },
 };
 
@@ -200,17 +300,18 @@ const DEVICE_REGISTRY = {
 
 const NAV_MOBILE_ITEMS = [
   { label: 'View All Mobile Devices →', href: 'mobile-benchmark.html', isOverview: true },
-  { label: 'Ryzen 5 7430U', href: 'device/mobile/ryzen-5-7430u.html', platform: 'ryzen-5-7430u' },
-  { label: 'Celeron N4000', href: 'device/mobile/celeron-n4000.html', platform: 'celeron-n4000' },
+  { label: 'Ryzen 5 7430U', href: 'device.html?platform=ryzen-5-7430u', platform: 'ryzen-5-7430u' },
+  { label: 'Celeron N4000', href: 'device.html?platform=celeron-n4000', platform: 'celeron-n4000' },
 ];
 
 const NAV_DESKTOP_ITEMS = [
   { label: 'View All Desktop Devices →', href: 'desktop-benchmark.html', isOverview: true },
-  { label: 'Ryzen 5 5500', href: 'device/desktop/ryzen-5-5500.html', platform: 'ryzen-5-5500' },
+  { label: 'Ryzen 5 5500 + RX 6600', href: 'device.html?platform=ryzen-5-5500-rx-6600', platform: 'ryzen-5-5500-rx-6600' },
+  { label: 'Ryzen 5 5500 + GT 1030 GD5', href: 'device.html?platform=ryzen-5-5500-gt-1030-gd5', platform: 'ryzen-5-5500-gt-1030-gd5' },
 ];
 
 const NAV_PHONE_ITEMS = [
-  { label: 'Coming Soon', href: 'javascript:void(0)', platform: '', isNotReady: true, status: 'Coming Soon' },
+  { label: 'Phone', href: 'javascript:void(0)', isNotReady: true, status: 'Coming Soon' },
 ];
 
 // ============================================================================
@@ -221,6 +322,15 @@ function getPlatformLabel(platform) {
   return DEVICE_REGISTRY[platform]?.label || platform;
 }
 
+function escapeHTML(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
 function getGameUpdateDate(slug, platform) {
   const dateStr = window.BENCHMARK_GAME_UPDATED?.[platform]?.[slug] || window.BENCHMARK_UPDATED?.[platform];
   if (!dateStr) return '';
@@ -228,16 +338,24 @@ function getGameUpdateDate(slug, platform) {
   const timestamp = Date.parse(dateStr);
   if (!timestamp) return '';
 
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(timestamp));
+  return DATE_FORMATTER.format(new Date(timestamp));
 }
 
 function getGamesByPlatform(platform) {
+  if (platformGamesCache.has(platform)) return platformGamesCache.get(platform);
+
   if (window.BENCHMARK_GAMES?.[platform]) {
-    return window.BENCHMARK_GAMES[platform];
+    const gamesData = window.BENCHMARK_GAMES[platform];
+    const flat = {};
+    Object.entries(gamesData).forEach(([key, val]) => {
+      if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+        Object.assign(flat, val);
+      } else {
+        flat[key] = val;
+      }
+    });
+    platformGamesCache.set(platform, flat);
+    return flat;
   }
 
   const device = DEVICE_REGISTRY[platform];
@@ -252,10 +370,13 @@ function getGamesByPlatform(platform) {
     }
   });
 
+  platformGamesCache.set(platform, flatGames);
   return flatGames;
 }
 
 function getAllGames() {
+  if (allGamesCache) return [...allGamesCache];
+
   const allGames = [];
 
   Object.entries(DEVICE_REGISTRY).forEach(([platformSlug, config]) => {
@@ -270,29 +391,28 @@ function getAllGames() {
             name,
             year,
             platform: platformSlug,
-            path: `bench/${year}/${config.subPath}`,
           });
         });
       } else {
         allGames.push({
           slug: key,
           name: value,
-          year: '2026',
+          year: '',
           platform: platformSlug,
-          path: `bench/2026/${config.subPath}`,
         });
       }
     });
   });
 
-  return allGames;
+  allGamesCache = allGames;
+  return [...allGamesCache];
 }
 
 // ============================================================================
 // Dynamic Rolling Number Counter Animation
 // ============================================================================
 
-function animateValue(element, start, end, duration = 650, suffix = '') {
+function animateValue(element, start, end, duration = 600, suffix = '') {
   if (!element || isNaN(end)) return;
 
   let startTimestamp = null;
@@ -330,7 +450,10 @@ function normalizeNavPath(path) {
 function buildRelativeHref(targetPath) {
   if (!targetPath || targetPath.startsWith('javascript')) return targetPath || '#';
   const currentPath = window.location.pathname.replace(/\\/g, '/');
-  const currentDir = currentPath.includes('/') ? currentPath.substring(0, currentPath.lastIndexOf('/') + 1) : '/';
+  const projectMarker = '/benchmark-result/';
+  const projectIndex = currentPath.toLowerCase().lastIndexOf(projectMarker);
+  const projectPath = projectIndex >= 0 ? currentPath.substring(projectIndex + projectMarker.length) : currentPath;
+  const currentDir = projectPath.includes('/') ? projectPath.substring(0, projectPath.lastIndexOf('/') + 1) : '';
   const currentParts = currentDir.split('/').filter(Boolean);
   const targetParts = ('/' + normalizeNavPath(targetPath)).split('/').filter(Boolean);
 
@@ -423,7 +546,7 @@ function initNavDropdowns() {
 }
 
 // ============================================================================
-// Auto Responsive Search Nav & Interaction Handlers
+// Auto Responsive Search Nav & Interaction Handlers (365px, 865px, 985px)
 // ============================================================================
 
 function initComingSoonControls() {
@@ -441,80 +564,27 @@ function initComingSoonControls() {
 function initResponsiveSearchNav() {
   const brand = document.querySelector('.brand');
   const searchBtn = document.querySelector('.nav-search-btn') || document.querySelector('a[href*="search.html"]');
-  const themeBtn = document.getElementById('themeToggle');
-  const navToggle = document.getElementById('navToggle');
-  const navLinks = document.getElementById('navLinks');
+  const themeBtn = document.getElementById('themeToggle') || document.querySelector('.theme-toggle-btn');
+  const viewBtn = document.getElementById('viewToggle') || document.querySelector('.view-toggle-btn');
+  const navToggle = document.getElementById('navToggle') || document.querySelector('.nav-toggle');
+  const navLinks = document.getElementById('navLinks') || document.querySelector('.links');
   if (!navToggle || !navLinks) return;
 
   const originalBrandHTML = brand ? brand.innerHTML : '';
-  const mobileBrandHTML = 'Benchmark<span>Result</span>';
+  const cleanBrandText = () => {
+    if (!brand) return;
+    const width = window.innerWidth;
 
-  if (!document.getElementById('dynamic-search-nav-style')) {
-    const styleEl = document.createElement('style');
-    styleEl.id = 'dynamic-search-nav-style';
-    styleEl.textContent = `
-      .nav-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-left: auto;
-      }
-      .nav-dropdown-item.is-not-ready {
-        cursor: not-allowed !important;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        opacity: 0.75;
-      }
-      .nav-dropdown-item.is-not-ready:hover {
-        background: rgba(244, 63, 94, 0.1);
-        color: #fca5a5;
-      }
-      .nav-coming-soon {
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: #f43f5e;
-        background: rgba(244, 63, 94, 0.15);
-        border: 1px solid rgba(244, 63, 94, 0.35);
-        padding: 2px 7px;
-        border-radius: 6px;
-      }
-      .game-meta-date {
-        font-size: 0.85rem;
-        color: var(--muted, #8e95a5);
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-      }
-      @media (max-width: 780px) {
-        .nav-actions .nav-search-btn,
-        .nav-actions a[href*="search.html"],
-        .nav-actions .theme-toggle-btn {
-          display: inline-flex !important;
-          align-items: center;
-          justify-content: center;
-          width: 38px;
-          height: 38px;
-          padding: 0 !important;
-          border-radius: 9px;
-          border: 1px solid var(--line);
-          background: var(--panel);
-          color: var(--text);
-          transition: all 0.25s ease;
-        }
-        .nav-actions .nav-search-btn:hover,
-        .nav-actions a[href*="search.html"]:hover,
-        .nav-actions .theme-toggle-btn:hover {
-          background: var(--panel2);
-          border-color: var(--accent);
-          transform: scale(1.05);
-        }
-      }
-    `;
-    document.head.appendChild(styleEl);
-  }
+    if (width <= 365) {
+      brand.innerHTML = 'HF <span>Plays</span> - BR';
+    } else if (width <= 865) {
+      brand.innerHTML = 'Benchmark<span>Result</span>';
+    } else if (width <= 985) {
+      brand.innerHTML = originalBrandHTML.replace(/(\s*-\s*HF\s*PLAYS|\s*HF\s*PLAYS)/gi, '');
+    } else {
+      brand.innerHTML = originalBrandHTML;
+    }
+  };
 
   let navActions = document.querySelector('.nav-actions');
   if (!navActions) {
@@ -524,20 +594,29 @@ function initResponsiveSearchNav() {
     navActions.appendChild(navToggle);
   }
 
-  const mediaQuery = window.matchMedia('(max-width: 780px)');
-  const handleLayoutChange = (e) => {
-    if (e.matches) {
-      if (brand) brand.innerHTML = mobileBrandHTML;
+  const mediaQuery865 = window.matchMedia('(max-width: 865px)');
+  const mediaQuery985 = window.matchMedia('(max-width: 985px)');
+  const mediaQuery365 = window.matchMedia('(max-width: 365px)');
+
+  const handleLayoutChange = () => {
+    cleanBrandText();
+
+    if (window.innerWidth <= 865) {
       if (searchBtn && navActions && !navActions.contains(searchBtn)) {
         navActions.insertBefore(searchBtn, navToggle);
+      }
+      if (viewBtn && navActions && !navActions.contains(viewBtn)) {
+        navActions.insertBefore(viewBtn, navToggle);
       }
       if (themeBtn && navActions && !navActions.contains(themeBtn)) {
         navActions.insertBefore(themeBtn, navToggle);
       }
     } else {
-      if (brand) brand.innerHTML = originalBrandHTML;
       if (searchBtn && navLinks && !navLinks.contains(searchBtn)) {
         navLinks.appendChild(searchBtn);
+      }
+      if (viewBtn && navLinks && !navLinks.contains(viewBtn)) {
+        navLinks.appendChild(viewBtn);
       }
       if (themeBtn && navLinks && !navLinks.contains(themeBtn)) {
         navLinks.appendChild(themeBtn);
@@ -545,16 +624,245 @@ function initResponsiveSearchNav() {
     }
   };
 
-  mediaQuery.addEventListener('change', handleLayoutChange);
-  handleLayoutChange(mediaQuery);
+  mediaQuery865.addEventListener('change', handleLayoutChange);
+  mediaQuery985.addEventListener('change', handleLayoutChange);
+  mediaQuery365.addEventListener('change', handleLayoutChange);
+  window.addEventListener('resize', handleLayoutChange);
+  handleLayoutChange();
 }
 
 // ============================================================================
-// Benchmark UI & Discovery
+// Unified Universal Search & Sort (Global Search, Games & Device Cards)
+// ============================================================================
+
+function renderGameCards(games, sortMode = 'latest') {
+  const resultsContainer = document.getElementById('resultsContainer');
+  if (!resultsContainer) return;
+
+  if (games.length === 0) {
+    resultsContainer.innerHTML = '<div class="no-results" style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; color: var(--muted);">Tidak ada hasil ditemukan</div>';
+    return;
+  }
+
+  const collator = new Intl.Collator('en', { sensitivity: 'base' });
+  const sortedGames =
+    sortMode === 'alphabetical'
+      ? [...games].sort((a, b) => collator.compare(a.name, b.name))
+      : games;
+
+  resultsContainer.innerHTML = sortedGames
+    .map((game, index) => {
+      const updateDate = getGameUpdateDate(game.slug, game.platform);
+      const staggerDelay = (index * 0.04).toFixed(2);
+      const relativePath = getBenchmarkHref(game.slug, game.platform, game.year);
+      return `
+        <a href="${relativePath}" class="discovery-item" style="animation-delay: ${staggerDelay}s;">
+          <div class="discovery-info">
+            <span class="game-title">${escapeHTML(game.name)}</span>
+            <div class="game-meta-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+              <span class="platform-badge">${escapeHTML(getPlatformLabel(game.platform))}</span>
+              ${updateDate ? `<span class="footer-sep" style="color: var(--line-strong, rgba(255,255,255,0.2));">·</span><small class="game-meta-date" style="font-size: 0.72rem; margin: 0;"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
+            </div>
+          </div>
+          <i class="fa-solid fa-arrow-right discovery-arrow"></i>
+        </a>
+      `;
+    })
+    .join('');
+}
+
+function handleUnifiedSearchAndSort() {
+  const searchInput = document.getElementById('deviceGameSearch');
+  const collator = new Intl.Collator('en', { sensitivity: 'base' });
+
+  const globalSearchContainer = document.getElementById('resultsContainer');
+  const gameListContainer = document.querySelector('[data-game-list]');
+  const deviceGridContainer = document.querySelector('.device-grid');
+
+  // KONDISI 1: Halaman Pencarian Global (search.html)
+  if (globalSearchContainer) {
+    const sortButtons = document.querySelectorAll('[data-search-sort]');
+    const allGames = getAllGames();
+
+    const performGlobalSearch = () => {
+      const activeSort = document.querySelector('[data-search-sort].is-active')?.dataset.searchSort || 'latest';
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+      if (!query) {
+        renderGameCards(allGames, activeSort);
+        return;
+      }
+
+      const filteredGames = allGames.filter((game) => {
+        const gameName = game.name.toLowerCase();
+        const gameSlug = game.slug.toLowerCase();
+        const platformSlug = game.platform.toLowerCase();
+        const platformLabel = getPlatformLabel(game.platform).toLowerCase();
+
+        return (
+          gameName.includes(query) ||
+          gameSlug.includes(query) ||
+          platformSlug.includes(query) ||
+          platformLabel.includes(query)
+        );
+      });
+
+      renderGameCards(filteredGames, activeSort);
+    };
+
+    sortButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        sortButtons.forEach((btn) => btn.classList.remove('is-active'));
+        button.classList.add('is-active');
+        performGlobalSearch();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', performGlobalSearch);
+    }
+    performGlobalSearch();
+    return;
+  }
+
+  // KONDISI 2: Halaman Detail Device (device.html -> filter list game)
+  if (gameListContainer) {
+    const platform = getCurrentPlatform();
+    const rawData = DEVICE_REGISTRY[platform]?.getData() || {};
+    const sortButtons = document.querySelectorAll('[data-game-sort]');
+
+    const rawGames = [];
+    Object.entries(rawData).forEach(([key, value]) => {
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        const year = key;
+        Object.entries(value).forEach(([slug, name]) => {
+          rawGames.push({ slug, name, year });
+        });
+      } else {
+        rawGames.push({ slug: key, name: value, year: '' });
+      }
+    });
+
+    const renderGames = () => {
+      const activeSort = document.querySelector('[data-game-sort].is-active')?.dataset.gameSort || 'latest';
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+      let filteredGames = rawGames.filter((item) => {
+        return item.name.toLowerCase().includes(query) || item.slug.toLowerCase().includes(query);
+      });
+
+      if (activeSort === 'alphabetical') {
+        filteredGames.sort((a, b) => collator.compare(a.name, b.name));
+      } else {
+        filteredGames.sort((a, b) => {
+          const timeA = Date.parse(window.BENCHMARK_GAME_UPDATED?.[platform]?.[a.slug] || '') || 0;
+          const timeB = Date.parse(window.BENCHMARK_GAME_UPDATED?.[platform]?.[b.slug] || '') || 0;
+          return timeB - timeA;
+        });
+      }
+
+      if (filteredGames.length === 0) {
+        gameListContainer.innerHTML = '<div class="no-results" style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; color: var(--muted);">No games found.</div>';
+        return;
+      }
+
+      gameListContainer.innerHTML = filteredGames
+        .map((item, index) => {
+          const updateDate = getGameUpdateDate(item.slug, platform);
+          const staggerDelay = (index * 0.05).toFixed(2);
+          return `
+            <a href="${getBenchmarkHref(item.slug, platform, item.year)}" class="device-game-item" style="animation-delay: ${staggerDelay}s;">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <span>${escapeHTML(item.name)}</span>
+                ${updateDate ? `<small class="game-meta-date"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
+              </div>
+              <i class="fa-solid fa-arrow-right" style="font-size: 0.85rem; color: var(--muted);"></i>
+            </a>
+          `;
+        })
+        .join('');
+    };
+
+    sortButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        sortButtons.forEach((btn) => btn.classList.remove('is-active'));
+        button.classList.add('is-active');
+        renderGames();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', renderGames);
+    }
+    renderGames();
+    return;
+  }
+
+  // KONDISI 3: Halaman Kategori Device (mobile/desktop/phone-benchmark.html -> filter kartu device)
+  if (deviceGridContainer) {
+    const originalCards = Array.from(deviceGridContainer.querySelectorAll('.device-card'));
+    const sortButtons = document.querySelectorAll('[data-device-sort]');
+    if (!originalCards.length) return;
+
+    const renderDevices = () => {
+      const activeSort = document.querySelector('[data-device-sort].is-active')?.dataset.deviceSort || 'latest';
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+      let filtered = originalCards.filter((card) => {
+        const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+        const desc = card.querySelector('p')?.textContent.toLowerCase() || '';
+        const platform = card.dataset.devicePlatform?.toLowerCase() || '';
+        return title.includes(query) || desc.includes(query) || platform.includes(query);
+      });
+
+      if (activeSort === 'alphabetical') {
+        filtered.sort((a, b) => {
+          const nameA = a.querySelector('h3')?.textContent || '';
+          const nameB = b.querySelector('h3')?.textContent || '';
+          return collator.compare(nameA, nameB);
+        });
+      } else {
+        filtered.sort((a, b) => {
+          const timeA = Date.parse(window.BENCHMARK_UPDATED?.[a.dataset.devicePlatform] || '') || 0;
+          const timeB = Date.parse(window.BENCHMARK_UPDATED?.[b.dataset.devicePlatform] || '') || 0;
+          return timeB - timeA;
+        });
+      }
+
+      deviceGridContainer.innerHTML = '';
+      if (filtered.length === 0) {
+        deviceGridContainer.innerHTML = '<div class="no-results" style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; color: var(--muted);">No devices found.</div>';
+        return;
+      }
+
+      filtered.forEach((card, index) => {
+        card.style.animationDelay = `${(index * 0.05).toFixed(2)}s`;
+        deviceGridContainer.appendChild(card);
+      });
+    };
+
+    sortButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        sortButtons.forEach((btn) => btn.classList.remove('is-active'));
+        button.classList.add('is-active');
+        renderDevices();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', renderDevices);
+    }
+    renderDevices();
+  }
+}
+
+// ============================================================================
+// Benchmark UI & Discovery (Centralized Single Template)
 // ============================================================================
 
 function getCurrentPlatform() {
-  return document.body.dataset.platform || DEFAULT_PLATFORM;
+  const params = new URLSearchParams(window.location.search);
+  return params.get('platform') || document.body.dataset.platform || DEFAULT_PLATFORM;
 }
 
 function getResult(slug, platform, resolution) {
@@ -562,19 +870,79 @@ function getResult(slug, platform, resolution) {
   return DATA[slug]?.[platform]?.[resolution] || DEFAULT_RESULT;
 }
 
+function getBenchmarkHref(slug, platform, year) {
+  const params = new URLSearchParams({ game: slug, platform });
+  if (year) params.set('year', year);
+  return buildRelativeHref(`benchmark.html?${params.toString()}`);
+}
+
+function getDeviceHref(platform, view = '') {
+  const params = new URLSearchParams({ platform });
+  if (view) params.set('view', view);
+  return buildRelativeHref(`device.html?${params.toString()}`);
+}
+
+function initBenchmarkTemplate() {
+  const titleElement = document.getElementById('gameTitle');
+  if (!titleElement) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const slug = (params.get('game') || '').replace(/\.html$/, '');
+  const platform = params.get('platform') || DEFAULT_PLATFORM;
+  const games = getGamesByPlatform(platform);
+  const gameName = games[slug] || slug || 'Benchmark';
+  const config = DEVICE_REGISTRY[platform];
+  const resolutions = Object.keys(window.DATA?.[slug]?.[platform] || {});
+  const resolution = document.getElementById('resolution');
+  const dropdown = document.querySelector('#resolutionSelect .select-dropdown');
+
+  document.body.dataset.game = slug;
+  document.body.dataset.platform = platform;
+  document.body.dataset.year = params.get('year') || '';
+  document.title = `${gameName} — ${getPlatformLabel(platform)} Benchmark`;
+  titleElement.textContent = gameName;
+  const eyebrow = document.getElementById('gameEyebrow');
+  if (eyebrow) eyebrow.textContent = `Gaming test · ${getPlatformLabel(platform)}`;
+  
+  const kicker = document.getElementById('gameKicker');
+  if (kicker) {
+    kicker.textContent = config?.category === 'desktop'
+      ? 'Dedicated Graphics · Benchmark Result'
+      : 'Integrated Graphics · Benchmark Result';
+  }
+
+  const notesElement = document.getElementById('gameNotes');
+  const note = window.BENCHMARK_NOTES?.[platform]?.[slug];
+  if (notesElement && note) notesElement.innerHTML = `<strong>Conclusion:</strong> ${note}`;
+
+  if (resolution && dropdown) {
+    if (!resolutions.length) {
+      resolution.innerHTML = '<option value="">No benchmark data</option>';
+      dropdown.innerHTML = '<li role="option" data-value="">No benchmark data</li>';
+    } else {
+      resolution.innerHTML = resolutions.map((value) => `<option value="${value.replace(/"/g, '&quot;')}">${value}</option>`).join('');
+      dropdown.innerHTML = resolutions.map((value, index) => `<li role="option" data-value="${value.replace(/"/g, '&quot;')}" aria-selected="${index === 0}">${value}</li>`).join('');
+    }
+  }
+
+  const backLink = document.getElementById('backToDevice');
+  if (backLink && config) {
+    backLink.href = getDeviceHref(platform);
+    backLink.innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to ${config.label}`;
+  }
+}
+
 function calculateBarWidth(value, max) {
   if (max === 0) return 0;
   return Math.min(MAX_PERCENTAGE, (value / max) * MAX_PERCENTAGE);
 }
 
-// Render 10 Game Terbaru di Discovery (Home) DENGAN badge Tested tanggal
 function renderDiscoveryGames() {
   const container = document.getElementById('discoveryContainer') || document.querySelector('.discovery-grid');
   if (!container) return;
 
   const allGames = getAllGames();
 
-  // Urutkan berdasarkan tanggal tested terbaru ke terlama
   allGames.sort((a, b) => {
     const rawDateA = window.BENCHMARK_GAME_UPDATED?.[a.platform]?.[a.slug] || window.BENCHMARK_UPDATED?.[a.platform] || '';
     const rawDateB = window.BENCHMARK_GAME_UPDATED?.[b.platform]?.[b.slug] || window.BENCHMARK_UPDATED?.[b.platform] || '';
@@ -596,14 +964,14 @@ function renderDiscoveryGames() {
     .map((game, index) => {
       const updateDate = getGameUpdateDate(game.slug, game.platform);
       const staggerDelay = (index * 0.05).toFixed(2);
-      const relativePath = buildRelativeHref(`${game.path}/${game.slug}.html`);
+      const relativePath = getBenchmarkHref(game.slug, game.platform, game.year);
 
       return `
         <a href="${relativePath}" class="discovery-item" style="animation-delay: ${staggerDelay}s;">
-          <div class="discovery-info">
-            <span class="game-title">${game.name}</span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="game-title">${escapeHTML(game.name)}</span>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="platform-badge">${getPlatformLabel(game.platform)}</span>
+              <span class="platform-badge">${escapeHTML(getPlatformLabel(game.platform))}</span>
               ${updateDate ? `<small class="game-meta-date" style="font-size: 0.72rem;"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
             </div>
           </div>
@@ -614,11 +982,61 @@ function renderDiscoveryGames() {
     .join('');
 }
 
-// Render "Updated [Tanggal]" HANYA di Header Halaman Device (device/*.html)
+function initDeviceTemplate() {
+  const titleElement = document.getElementById('deviceTitle');
+  if (!titleElement) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const platform = params.get('platform') || DEFAULT_PLATFORM;
+  const config = DEVICE_REGISTRY[platform] || DEVICE_REGISTRY[DEFAULT_PLATFORM];
+  const isPlayableView = params.get('view') === 'playable';
+
+  document.body.dataset.platform = platform;
+  document.title = `${config.label} — Benchmark Result`;
+
+  titleElement.textContent = config.label;
+
+  const kicker = document.getElementById('deviceKicker');
+  if (kicker) kicker.textContent = config.kicker || `${getPlatformLabel(platform)} benchmark archive`;
+
+  const deviceView = document.getElementById('deviceView');
+  const playableView = document.getElementById('playableView');
+
+  if (deviceView) deviceView.hidden = isPlayableView;
+  if (playableView) playableView.hidden = !isPlayableView;
+
+  if (isPlayableView) {
+    document.title = `Playable Games on ${config.label} — Benchmark Database`;
+    const pTitle = document.getElementById('playableTitle');
+    const pKicker = document.getElementById('playableKicker');
+    if (pTitle) pTitle.textContent = `Playable Games on ${config.label}`;
+    if (pKicker) pKicker.textContent = `Games verified to be playable on ${config.label}.`;
+    
+    const pBackTop = document.getElementById('playableBackTop');
+    const pBackBottom = document.getElementById('playableBackBottom');
+    if (pBackTop) pBackTop.href = getDeviceHref(platform);
+    if (pBackBottom) pBackBottom.href = getDeviceHref(platform);
+  }
+
+  const specs = document.getElementById('deviceSpecs');
+  if (specs && config.specs) {
+    specs.innerHTML = config.specs.map((spec) => {
+      const separator = spec.indexOf(':');
+      if (separator < 0) return `<p>${spec}</p>`;
+      return `<p><b>${spec.slice(0, separator)}:</b>${spec.slice(separator + 1)}</p>`;
+    }).join('');
+  }
+
+  const playableLink = document.getElementById('playableLink');
+  if (playableLink) {
+    playableLink.href = getDeviceHref(platform, 'playable');
+  }
+}
+
 function renderDevicePageUpdate() {
   if (document.body.dataset.game) return;
 
-  const isDeviceDetailPage = document.querySelector('[data-game-list]') || document.body.dataset.gamePath;
+  const isDeviceDetailPage = document.querySelector('[data-game-list]') || document.getElementById('deviceTitle');
   if (!isDeviceDetailPage) return;
 
   const platform = getCurrentPlatform();
@@ -628,13 +1046,9 @@ function renderDevicePageUpdate() {
   const timestamp = Date.parse(dateStr);
   if (!timestamp) return;
 
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(timestamp));
+  const formattedDate = DATE_FORMATTER.format(new Date(timestamp));
 
-  const heading = document.querySelector('h1');
+  const heading = document.querySelector('#deviceTitle') || document.querySelector('h1');
   if (heading) {
     const dateBadge = document.createElement('div');
     dateBadge.id = 'devicePageUpdateDate';
@@ -647,43 +1061,69 @@ function renderDevicePageUpdate() {
   }
 }
 
-function renderDeviceGameList() {
-  const list = document.querySelector('[data-game-list]');
-  if (!list) return;
+function renderPlayableGameList() {
+  const container = document.querySelector('[data-playable-list]');
+  if (!container) return;
 
   const platform = getCurrentPlatform();
-  const rawGames = Object.entries(getGamesByPlatform(platform));
-  const sortButtons = document.querySelectorAll('[data-game-sort]');
-  const searchInput = document.getElementById('deviceGameSearch');
-  const gamePath = document.body.dataset.gamePath;
-  const year = document.body.dataset.year || '2026';
+  const rawData = DEVICE_REGISTRY[platform]?.getData() || {};
+  const sortButtons = document.querySelectorAll('[data-playable-sort]');
+  const searchInput = document.getElementById('playableGameSearch');
+  const countBadge = document.getElementById('playableCount');
   const collator = new Intl.Collator('en', { sensitivity: 'base' });
 
+  const playableGames = [];
+  Object.entries(rawData).forEach(([key, value]) => {
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      const year = key;
+      Object.entries(value).forEach(([slug, name]) => {
+        if (window.BENCHMARK_PLAYABLE?.[platform]?.[slug] === true) {
+          playableGames.push({ slug, name, year });
+        }
+      });
+    } else {
+      if (window.BENCHMARK_PLAYABLE?.[platform]?.[key] === true) {
+        playableGames.push({ slug: key, name: value, year: '' });
+      }
+    }
+  });
+
+  if (countBadge) {
+    countBadge.textContent = `${playableGames.length} Games`;
+  }
+
   const render = () => {
-    const activeSort = document.querySelector('[data-game-sort].is-active')?.dataset.gameSort || 'latest';
+    const activeSort = document.querySelector('[data-playable-sort].is-active')?.dataset.playableSort || 'latest';
     const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-    let filteredGames = rawGames.filter(([slug, name]) => {
-      return name.toLowerCase().includes(query) || slug.toLowerCase().includes(query);
+    let filtered = playableGames.filter((item) => {
+      return item.name.toLowerCase().includes(query) || item.slug.toLowerCase().includes(query);
     });
 
     if (activeSort === 'alphabetical') {
-      filteredGames.sort(([, firstName], [, secondName]) => collator.compare(firstName, secondName));
+      filtered.sort((a, b) => collator.compare(a.name, b.name));
+    } else {
+      filtered.sort((a, b) => {
+        const timeA = Date.parse(window.BENCHMARK_GAME_UPDATED?.[platform]?.[a.slug] || '') || 0;
+        const timeB = Date.parse(window.BENCHMARK_GAME_UPDATED?.[platform]?.[b.slug] || '') || 0;
+        return timeB - timeA;
+      });
     }
 
-    if (filteredGames.length === 0) {
-      list.innerHTML = '<div class="no-results" style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; color: var(--muted);">No games found.</div>';
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="no-results" style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; color: var(--muted);">No playable games found.</div>';
       return;
     }
 
-    list.innerHTML = filteredGames
-      .map(([slug, name], index) => {
-        const updateDate = getGameUpdateDate(slug, platform);
+    container.innerHTML = filtered
+      .map((item, index) => {
+        const updateDate = getGameUpdateDate(item.slug, platform);
         const staggerDelay = (index * 0.05).toFixed(2);
+
         return `
-          <a href="../../bench/${year}/${gamePath}/${slug}.html" class="device-game-item" style="animation-delay: ${staggerDelay}s;">
+          <a href="${getBenchmarkHref(item.slug, platform, item.year)}" class="device-game-item" style="animation-delay: ${staggerDelay}s;">
             <div style="display: flex; flex-direction: column; gap: 4px;">
-              <span>${name}</span>
+              <span>${escapeHTML(item.name)}</span>
               ${updateDate ? `<small class="game-meta-date"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
             </div>
             <i class="fa-solid fa-arrow-right" style="font-size: 0.85rem; color: var(--muted);"></i>
@@ -787,6 +1227,31 @@ function initResolutionSelect() {
   container.dataset.initialized = 'true';
 }
 
+function renderGameVideo() {
+  const container = document.getElementById('gameVideoContainer');
+  const section = document.getElementById('gameVideoSection') || container?.closest('.video-section');
+  const slug = document.body.dataset.game;
+  const platform = getCurrentPlatform();
+
+  if (!container || !slug || !platform) return;
+
+  const videoId = window.BENCHMARK_VIDEOS?.[platform]?.[slug];
+
+  if (videoId) {
+    container.innerHTML = `
+      <iframe 
+        src="https://www.youtube-nocookie.com/embed/${videoId}?rel=0" 
+        title="Gameplay Showcase" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen>
+      </iframe>
+    `;
+    if (section) section.style.display = 'block';
+  } else {
+    if (section) section.style.display = 'none';
+  }
+}
+
 function renderBench() {
   const rawSlug = document.body.dataset.game || '';
   if (!rawSlug) return;
@@ -818,7 +1283,7 @@ function renderBench() {
   if (elements.bars && !elements.bars.nextElementSibling?.classList.contains('chart-scale')) {
     const chartScale = document.createElement('div');
     chartScale.className = 'chart-scale';
-    chartScale.innerHTML = '<span>0 FPS</span><span>90 FPS</span>';
+    chartScale.innerHTML = '<span>0 FPS</span><span>75 FPS</span>';
     elements.bars.insertAdjacentElement('afterend', chartScale);
   }
 
@@ -841,21 +1306,30 @@ function renderBench() {
     if (elements.lowBar) elements.lowBar.style.width = `${calculateBarWidth(result.low, maxValue)}%`;
     if (elements.resolutionLabel) elements.resolutionLabel.textContent = selectedResolution || '—';
 
+    // Penanganan Keterangan Status / Capture Card
     if (elements.statusDisplay) {
       const hasData = result.avg > 0 || result.low > 0;
-      elements.statusDisplay.textContent = hasData
-        ? '🎥 Recorded with a capture card and another PC for no FPS loss.'
-        : 'There is no benchmark data yet.';
+      const customStatus = window.BENCHMARK_STATUS?.[platform]?.[slug];
+
+      if (!hasData) {
+        elements.statusDisplay.textContent = 'There is no benchmark data yet.';
+        elements.statusDisplay.style.display = 'block';
+      } else if (customStatus === false || customStatus === '') {
+        elements.statusDisplay.textContent = '';
+        elements.statusDisplay.style.display = 'none';
+      } else if (typeof customStatus === 'string') {
+        elements.statusDisplay.textContent = customStatus;
+        elements.statusDisplay.style.display = 'block';
+      } else {
+        elements.statusDisplay.textContent = '🎥 Recorded with a capture card and another PC for no FPS loss.';
+        elements.statusDisplay.style.display = 'block';
+      }
     }
   };
 
   elements.resolutionSelect.addEventListener('change', updateDisplay);
   updateDisplay();
 }
-
-// ============================================================================
-// Smooth Anchor Navigation & Clean Hash Utility
-// ============================================================================
 
 function initCleanHashNavigation() {
   if (window.location.hash) {
@@ -876,10 +1350,6 @@ function initCleanHashNavigation() {
     });
   });
 }
-
-// ============================================================================
-// Privacy Policy & Footer Helpers
-// ============================================================================
 
 function initPrivacyPolicyModal() {
   const policyLinks = document.querySelectorAll('a[href$="privacy-policy.html"]');
@@ -952,109 +1422,43 @@ function initPrivacyPolicyModal() {
 
 function initPrivacyPolicyFooter() {
   document.querySelectorAll('.footer .container').forEach((footerContainer) => {
+    const brandText = document.createElement('span');
+    brandText.className = 'footer-brand';
+    brandText.textContent = 'BenchmarkResult';
+
+    const sep1 = document.createElement('span');
+    sep1.className = 'footer-sep sep-1';
+    sep1.textContent = ' · ';
+
+    const copyText = document.createElement('span');
+    copyText.className = 'footer-copy';
+    copyText.textContent = '© 2026 HF Plays';
+
+    const sep2 = document.createElement('span');
+    sep2.className = 'footer-sep sep-2';
+    sep2.textContent = ' · ';
+
     const link = document.createElement('a');
     link.className = 'privacy-policy-footer-link';
     link.href = buildRelativeHref('privacy-policy.html');
     link.textContent = 'Privacy Policy';
-    footerContainer.replaceChildren(
-      document.createTextNode('BenchmarkResult · © 2026 HF Plays · '),
-      link
-    );
+
+    footerContainer.replaceChildren(brandText, sep1, copyText, sep2, link);
   });
 }
 
-function initMobileBenchmarkUpdated() {
+function initDeviceCardsUpdated() {
   document.querySelectorAll('[data-device-platform]').forEach((deviceCard) => {
     const updatedElement = deviceCard.querySelector('[data-device-updated]');
-    const timestamp = Date.parse(window.BENCHMARK_UPDATED?.[deviceCard.dataset.devicePlatform] || '') || 0;
-    if (!updatedElement || !timestamp) return;
+    const platform = deviceCard.dataset.devicePlatform;
+    const dateStr = window.BENCHMARK_UPDATED?.[platform];
+    if (!updatedElement || !dateStr) return;
 
-    const formattedDate = new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    }).format(new Date(timestamp));
+    const timestamp = Date.parse(dateStr);
+    if (!timestamp) return;
 
+    const formattedDate = DATE_FORMATTER.format(new Date(timestamp));
     updatedElement.textContent = `Updated ${formattedDate}`;
-  });
-}
-
-// ============================================================================
-// Global Search Functionality (search.html)
-// ============================================================================
-
-function renderGameCards(games, sortMode = 'latest') {
-  const resultsContainer = document.getElementById('resultsContainer');
-  if (!resultsContainer) return;
-
-  if (games.length === 0) {
-    resultsContainer.innerHTML = '<div class="no-results">Tidak ada hasil ditemukan</div>';
-    return;
-  }
-
-  const collator = new Intl.Collator('en', { sensitivity: 'base' });
-  const sortedGames =
-    sortMode === 'alphabetical'
-      ? [...games].sort((a, b) => collator.compare(a.name, b.name))
-      : games;
-
-  resultsContainer.innerHTML = sortedGames
-    .map((game, index) => {
-      const updateDate = getGameUpdateDate(game.slug, game.platform);
-      const staggerDelay = (index * 0.04).toFixed(2);
-      const relativePath = buildRelativeHref(`${game.path}/${game.slug}.html`);
-      return `
-        <a href="${relativePath}" class="game-card" style="animation-delay: ${staggerDelay}s;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
-            <h3>${game.name}</h3>
-            ${updateDate ? `<small class="game-meta-date"><i class="fa-regular fa-clock"></i> Tested ${updateDate}</small>` : ''}
-          </div>
-          <p class="muted">${getPlatformLabel(game.platform)}</p>
-        </a>
-      `;
-    })
-    .join('');
-}
-
-function performSearch() {
-  const searchInput = document.getElementById('searchInput');
-  const activeSort = document.querySelector('[data-search-sort].is-active');
-  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-  const allGames = getAllGames();
-  const sortMode = activeSort?.dataset.searchSort || 'latest';
-
-  if (!query) {
-    renderGameCards(allGames, sortMode);
-    return;
-  }
-
-  const filteredGames = allGames.filter((game) => {
-    const gameName = game.name.toLowerCase();
-    const gameSlug = game.slug.toLowerCase();
-    const platformSlug = game.platform.toLowerCase();
-    const platformLabel = getPlatformLabel(game.platform).toLowerCase();
-
-    return (
-      gameName.includes(query) ||
-      gameSlug.includes(query) ||
-      platformSlug.includes(query) ||
-      platformLabel.includes(query)
-    );
-  });
-
-  renderGameCards(filteredGames, sortMode);
-}
-
-function initSearchSorting() {
-  const sortButtons = document.querySelectorAll('[data-search-sort]');
-  if (!sortButtons.length) return;
-
-  sortButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      sortButtons.forEach((btn) => btn.classList.remove('is-active'));
-      button.classList.add('is-active');
-      performSearch();
-    });
   });
 }
 
@@ -1064,16 +1468,20 @@ function initSearchSorting() {
 
 document.addEventListener('DOMContentLoaded', () => {
   setupThemeToggle();
+  setupViewToggle();
+  initBenchmarkTemplate();
   renderDiscoveryGames();
   renderBench();
+  renderGameVideo();
+  initDeviceTemplate();
   renderDevicePageUpdate();
-  renderDeviceGameList();
+  handleUnifiedSearchAndSort();
+  renderPlayableGameList();
   initCleanHashNavigation();
   initPrivacyPolicyFooter();
   initPrivacyPolicyModal();
-  initMobileBenchmarkUpdated();
+  initDeviceCardsUpdated();
   initNavDropdowns();
-  initSearchSorting();
   initComingSoonControls();
   initResponsiveSearchNav();
 
@@ -1086,14 +1494,4 @@ document.addEventListener('DOMContentLoaded', () => {
       link.textContent = platformGames[slug];
     }
   });
-
-  const searchInput = document.getElementById('searchInput');
-  const resultsContainer = document.getElementById('resultsContainer');
-
-  if (resultsContainer) {
-    renderGameCards(getAllGames());
-    if (searchInput) {
-      searchInput.addEventListener('input', performSearch);
-    }
-  }
 });

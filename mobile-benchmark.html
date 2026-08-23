@@ -9,15 +9,23 @@
     <link rel="stylesheet" href="assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <script defer src="assets/data/data-init.js"></script>
-    <script defer src="assets/data/mobile/data-7430u.js"></script>
-    <script defer src="assets/data/mobile/data-n4000.js"></script>
+    <script defer src="assets/data/db.js"></script>
     <script defer src="assets/app.js"></script>
     <script>
-      (function() {
-        const saved = localStorage.getItem('hf_theme');
-        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.setAttribute('data-theme', saved || (sysDark ? 'dark' : 'light'));
-      })();
+        (function () {
+            const savedTheme = localStorage.getItem('hf_theme') || localStorage.getItem('hfplays_theme');
+            const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (sysDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', theme);
+
+            const isMobile = window.innerWidth <= 780 || window.matchMedia('(max-width: 780px)').matches || window.matchMedia('(pointer: coarse)').matches;
+            let savedView = localStorage.getItem('hf_view_mode') || localStorage.getItem('hfplays_view');
+            if (!savedView) {
+                savedView = isMobile ? 'lite' : 'normal';
+            }
+            document.documentElement.setAttribute('data-view', savedView);
+        })();
     </script>
 </head>
 
@@ -54,7 +62,11 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </a>
 
-                <!-- Tombol Toggle Tema -->
+                <button class="view-toggle-btn" id="viewToggle" aria-label="Toggle Lite View"
+                    title="Switch to Lite Performance Mode" type="button">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                </button>
+
                 <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme"
                     type="button">
                     <i class="fa-solid fa-sun"></i>
@@ -72,8 +84,29 @@
         </section>
 
         <section class="section">
+            <!-- Header Control Bar: Search & Sort -->
+            <div class="section-heading">
+                <h2>Mobile Devices</h2>
+                <div class="device-controls-wrap">
+                    <div class="search-box" style="margin-bottom: 0;">
+                        <input type="text" id="deviceGameSearch" placeholder="Search mobile..."
+                            style="padding:.55rem 1rem;font-size:.88rem;width:180px;">
+                    </div>
+                    <div class="game-sort" aria-label="Sort devices">
+                        <span>Sort</span>
+                        <button type="button" class="is-active" data-device-sort="latest" title="Sort by Latest" aria-label="Sort by latest">
+                            <i class="fa-solid fa-clock"></i>
+                        </button>
+                        <button type="button" data-device-sort="alphabetical" title="Sort A-Z" aria-label="Sort alphabetically">
+                            <i class="fa-solid fa-arrow-down-a-z"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Device Cards -->
             <div class="device-grid">
-                <a class="device-card" href="device/mobile/ryzen-5-7430u.html" data-device-platform="ryzen-5-7430u">
+                <a class="device-card" href="device.html?platform=ryzen-5-7430u" data-device-platform="ryzen-5-7430u">
                     <div class="device-badge-row">
                         <span class="device-badge">mobile</span>
                         <span class="device-updated" data-device-updated></span>
@@ -82,7 +115,7 @@
                     <p>Integrated Radeon Graphics benchmark archive for modern mid-range laptop performance.</p>
                 </a>
 
-                <a class="device-card" href="device/mobile/celeron-n4000.html" data-device-platform="celeron-n4000">
+                <a class="device-card" href="device.html?platform=celeron-n4000" data-device-platform="celeron-n4000">
                     <div class="device-badge-row">
                         <span class="device-badge">mobile</span>
                         <span class="device-updated" data-device-updated></span>

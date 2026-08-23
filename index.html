@@ -8,17 +8,72 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+    <style>
+        .hero-actions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 680px;
+            margin-top: 1.5rem;
+        }
+
+        .hero-row-top {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .hero-row-bottom {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .hero-actions-container .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            min-height: 46px;
+        }
+
+        /* Saat di layar mobile (HP), ubah layout tombol menjadi 1 kolom berjajar ke bawah */
+        @media (max-width: 600px) {
+
+            .hero-row-top,
+            .hero-row-bottom {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
     <script defer src="assets/data/data-init.js"></script>
-    <script defer src="assets/data/mobile/data-7430u.js"></script>
-    <script defer src="assets/data/mobile/data-n4000.js"></script>
+    <script defer src="assets/data/db.js"></script>
     <script defer src="assets/app.js"></script>
     <script>
-        (function () {
-            const saved = localStorage.getItem('hf_theme');
-            const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute('data-theme', saved || (sysDark ? 'dark' : 'light'));
-        })();
-    </script>
+    (function () {
+        const savedTheme = localStorage.getItem('hf_theme') || localStorage.getItem('hfplays_theme');
+        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (sysDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-bs-theme', theme);
+
+        // Deteksi Mobile
+        const isMobile = window.innerWidth <= 780 || window.matchMedia('(max-width: 780px)').matches || window.matchMedia('(pointer: coarse)').matches;
+        
+        // Ambil data view
+        let savedView = localStorage.getItem('hf_view_mode') || localStorage.getItem('hfplays_view');
+        
+        // Jika belum ada pilihan tersimpan, default ke 'lite' untuk mobile
+        if (!savedView) {
+            savedView = isMobile ? 'lite' : 'normal';
+        }
+
+        document.documentElement.setAttribute('data-view', savedView);
+    })();
+</script>
 </head>
 
 <body>
@@ -55,6 +110,12 @@
                 </a>
 
                 <!-- Tombol Toggle Tema -->
+                <!-- Tombol Toggle Lite Mode (Ringan) -->
+                <button class="view-toggle-btn" id="viewToggle" aria-label="Toggle Lite View"
+                    title="Switch to Lite Performance Mode" type="button">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                </button>
+
                 <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme"
                     type="button">
                     <i class="fa-solid fa-sun"></i>
@@ -69,24 +130,53 @@
             <h1>The Companion Benchmark Database for HF Plays.</h1>
             <p>The official benchmark database for HF Plays. Find real-world gaming performance data organized by
                 hardware configuration, focused purely on essential Average FPS and 1% Low metrics without clutter.</p>
-            <div class="actions">
-                <a class="btn primary" href="mobile-benchmark.html">Explore Mobile</a>
-                <a class="btn primary" href="desktop-benchmark.html">Explore Desktop</a>
-                <a class="btn btn-coming-soon" href="javascript:void(0)">Explore Phone</a>
+
+            <div class="hero-signal-strip" aria-label="Database status">
+                <span><i class="fa-solid fa-circle-check"></i> LIVE DATABASE</span>
+                <span><i class="fa-solid fa-wave-square"></i> AVG FPS + 1% LOW</span>
+                <!-- <span><i class="fa-solid fa-microchip"></i> REAL HARDWARE</span> -->
+            </div>
+
+            <div class="hero-actions-container">
+                <!-- Baris Atas: YouTube & Main Portal -->
+                <div class="hero-row-top">
+                    <a class="btn btn-youtube" href="https://youtube.com/@hfplays" target="_blank"
+                        rel="noopener noreferrer">
+                        <i class="fa-brands fa-youtube" style="margin-right: 8px;"></i> YouTube Channel
+                    </a>
+                    <a class="btn" href="https://landing.hfplays.my.id" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-solid fa-globe" style="margin-right: 8px;"></i> Main Portal
+                    </a>
+                </div>
+
+                <!-- Baris Bawah: Explore Category -->
+                <div class="hero-row-bottom">
+                    <a class="btn primary" href="mobile-benchmark.html">
+                        Explore Mobile
+                    </a>
+                    <a class="btn primary" href="desktop-benchmark.html">
+                        Explore Desktop
+                    </a>
+                    <a class="btn btn-coming-soon" href="javascript:void(0)">
+                        Explore Phone
+                    </a>
+                </div>
             </div>
         </section>
+
         <section class="section discovery-section">
             <div class="section-head-wrap">
-                <h2>Discovery</h2>
-                <p class="copy">
+                <p class="mb-4 copy">
                     Featuring the 10 latest game tests from any platform on HF Plays, listed from newest to oldest.<br>
                     Click any game to jump directly to its individual benchmark page.
                 </p>
+                <h2 class="mt-4">Discovery</h2>
             </div>
 
             <div class="discovery-grid" id="discoveryContainer"></div>
         </section>
     </main>
+
     <footer class="footer">
         <div class="container"></div>
     </footer>
