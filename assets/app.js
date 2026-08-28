@@ -37,7 +37,8 @@ function setupThemeToggle() {
   updateIcons(currentTheme);
 
   toggleBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const current = document.documentElement.getAttribute('data-theme') || 'dark';
       const nextTheme = current === 'dark' ? 'light' : 'dark';
 
@@ -74,7 +75,8 @@ function setupViewToggle() {
   updateUI(currentView);
 
   toggleBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const current = document.documentElement.getAttribute('data-view') || 'normal';
       const nextView = current === 'lite' ? 'normal' : 'lite';
 
@@ -89,29 +91,34 @@ function setupViewToggle() {
 // Mobile Header Menu
 // ============================================================================
 
-const navToggle = document.getElementById('navToggle');
-const navLinks = document.getElementById('navLinks');
+function initMobileHeaderMenu() {
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
 
-if (navToggle && navLinks) {
-  navToggle.addEventListener('click', () => {
-    navLinks.classList.toggle('show');
-    const icon = navToggle.querySelector('i');
-    if (icon) {
-      icon.classList.toggle('fa-bars');
-      icon.classList.toggle('fa-xmark');
-    }
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) {
-      navLinks.classList.remove('show');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isShowing = navLinks.classList.toggle('show');
       const icon = navToggle.querySelector('i');
       if (icon) {
-        icon.classList.add('fa-bars');
-        icon.classList.remove('fa-xmark');
+        icon.classList.toggle('fa-bars', !isShowing);
+        icon.classList.toggle('fa-xmark', isShowing);
       }
-    }
-  });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) {
+        if (navLinks.classList.contains('show')) {
+          navLinks.classList.remove('show');
+          const icon = navToggle.querySelector('i');
+          if (icon) {
+            icon.classList.add('fa-bars');
+            icon.classList.remove('fa-xmark');
+          }
+        }
+      }
+    });
+  }
 }
 
 // ============================================================================
@@ -169,7 +176,6 @@ const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
 let allGamesCache = null;
 const platformGamesCache = new Map();
 
-// Ambil registry yang sudah dimuat dari device-core.js & device-partners.js
 const DEVICE_REGISTRY = window.DEVICE_REGISTRY || {};
 const NAV_MOBILE_ITEMS = window.NAV_MOBILE_ITEMS || [];
 const NAV_DESKTOP_ITEMS = window.NAV_DESKTOP_ITEMS || [];
@@ -205,7 +211,6 @@ function getGamesByPlatform(platform) {
 
   const flatGames = {};
   
-  // Ambil dari _GAME_NAMES jika ada
   if (window._GAME_NAMES?.[platform]) {
     Object.assign(flatGames, window._GAME_NAMES[platform]);
   }
@@ -361,27 +366,43 @@ function initNavDropdowns() {
   renderNavDropdown('desktop');
   renderNavDropdown('phone');
 
-  document.querySelectorAll('.nav-dropdown-toggle').forEach((toggle) => {
-    toggle.addEventListener('click', (event) => {
+  document.addEventListener('click', (event) => {
+    const toggleBtn = event.target.closest('.nav-dropdown-toggle');
+
+    if (toggleBtn) {
+      event.preventDefault();
       event.stopPropagation();
-      const currentDropdown = toggle.closest('.nav-dropdown');
+
+      const currentDropdown = toggleBtn.closest('.nav-dropdown');
+      if (!currentDropdown) return;
+
       const isOpen = currentDropdown.classList.contains('open');
 
-      document.querySelectorAll('.nav-dropdown').forEach((dd) => dd.classList.remove('open'));
-      document.querySelectorAll('.nav-dropdown-toggle').forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
+      document.querySelectorAll('.nav-dropdown').forEach((dd) => {
+        if (dd !== currentDropdown) {
+          dd.classList.remove('open');
+          dd.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+        }
+      });
 
       if (!isOpen) {
         currentDropdown.classList.add('open');
-        toggle.setAttribute('aria-expanded', 'true');
+        toggleBtn.setAttribute('aria-expanded', 'true');
+      } else {
+        currentDropdown.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
       }
-    });
-  });
-
-  document.addEventListener('click', (event) => {
-    if (!event.target.closest('.nav-dropdown')) {
-      document.querySelectorAll('.nav-dropdown').forEach((dd) => dd.classList.remove('open'));
-      document.querySelectorAll('.nav-dropdown-toggle').forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
+      return;
     }
+
+    if (event.target.closest('.nav-dropdown-menu')) {
+      return;
+    }
+
+    document.querySelectorAll('.nav-dropdown.open').forEach((dd) => {
+      dd.classList.remove('open');
+      dd.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+    });
   });
 }
 
@@ -1029,7 +1050,8 @@ function initResolutionSelect() {
   };
 
   sync(nativeSelect.value);
-  button.addEventListener('click', () => {
+  button.addEventListener('click', (e) => {
+    e.stopPropagation();
     const isOpen = container.classList.toggle('open');
     button.setAttribute('aria-expanded', String(isOpen));
   });
@@ -1335,6 +1357,7 @@ function initDeviceCardsUpdated() {
 document.addEventListener('DOMContentLoaded', () => {
   setupThemeToggle();
   setupViewToggle();
+  initMobileHeaderMenu();
   initBenchmarkTemplate();
   renderDiscoveryGames();
   renderBench();

@@ -114,7 +114,8 @@ a {
 
 .container {
   width: min(1140px, 92%);
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ============================================================================
@@ -591,7 +592,7 @@ main {
 }
 
 .nav-dropdown.open .nav-dropdown-menu {
-  display: block;
+  display: block !important;
   animation: menuDrop 0.18s ease-out forwards;
 }
 
@@ -643,7 +644,7 @@ main {
 }
 
 /* ============================================================================
-   Hero Section (Presisi, Simetris, Animasi Halus)
+   Hero Section
    ============================================================================ */
 .hero {
   position: relative;
@@ -961,9 +962,8 @@ main {
 }
 
 /* ============================================================================
-   Temperature Bars Styling (Max CPU & Max GPU + Avg Text Badge)
+   Temperature Bars Styling
    ============================================================================ */
-
 .temp-value-wrap {
   display: inline-flex;
   align-items: baseline;
@@ -1042,6 +1042,7 @@ main {
 
 .section {
   margin-top: 48px;
+  width: 100%;
 }
 
 .section h2 {
@@ -1051,15 +1052,10 @@ main {
   color: var(--text-bright);
 }
 
-/* Di assets/style.css */
-.section {
-  width: 100%;
-}
-
 .copy#gameNotes {
-  max-width: 100%;       /* Hilangkan batas lebar teks */
+  max-width: 100%;
   width: 100%;
-  text-align: justify;    /* Opsional: agar rata kiri-kanan rapi */
+  text-align: justify;
   line-height: 1.6;
 }
 
@@ -1239,7 +1235,7 @@ main {
 }
 
 /* ============================================================================
-   Game List & Section Header (Search & Sort Aligned)
+   Game List & Section Header
    ============================================================================ */
 .section-heading {
   display: flex;
@@ -1501,7 +1497,7 @@ main {
 }
 
 /* ============================================================================
-   Device Cards & Stats (Compact & Scalable Design)
+   Device Cards & Stats
    ============================================================================ */
 .device-grid {
   display: grid;
@@ -2200,7 +2196,7 @@ th {
 }
 
 /* ============================================================================
-   Page Entry Animations (Dipercepat & Dipersempit)
+   Page Entry Animations
    ============================================================================ */
 @keyframes fadeInDown {
   from {
@@ -2479,6 +2475,7 @@ th {
     flex-wrap: nowrap;
     min-height: 68px;
     gap: 10px;
+    position: relative;
   }
 
   .brand {
@@ -2519,23 +2516,25 @@ th {
     font-size: 1rem;
   }
 
+  /* Posisi Menu Dropdown Mobile Presisi di Tengah Layar */
   .links {
     display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    right: 0;
-    width: 100%;
-    margin-top: 0;
+    position: fixed;
+    top: 76px;
+    left: 4%;
+    right: 4%;
+    width: 92%;
+    max-width: 600px;
+    margin: 0 auto;
     flex-direction: column;
     align-items: stretch;
     background: var(--panel-solid) !important;
     border: 1px solid var(--line-strong);
-    border-radius: 16px;
-    padding: 12px;
-    box-shadow: 0 22px 46px rgba(0, 0, 0, 0.42), 0 0 24px var(--accent-glow-subtle);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.6), 0 0 24px var(--accent-glow-subtle);
     gap: 6px;
-    z-index: 120;
+    z-index: 9999;
   }
 
   .links.show {
@@ -2543,24 +2542,40 @@ th {
     animation: mobileMenuDrop 0.2s ease-out both;
   }
 
-  .links > a, .links .nav-dropdown-toggle {
-    min-height: 42px;
+  .links > a, 
+  .links .nav-dropdown-toggle {
+    min-height: 44px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 10px;
   }
 
-  .nav-dropdown,
-  .nav-dropdown-toggle,
-  .nav-dropdown-menu {
+  .nav-dropdown {
     width: 100%;
   }
 
   .nav-dropdown-toggle {
+    width: 100%;
     justify-content: space-between;
   }
 
   .nav-dropdown-menu {
     position: static;
-    margin-top: 8px;
+    margin-top: 6px;
     min-width: 0;
+    width: 100%;
+    box-shadow: none;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 6px;
+  }
+
+  [data-theme="light"] .nav-dropdown-menu {
+    background: rgba(0, 0, 0, 0.04);
   }
 
   .hero {
@@ -2684,21 +2699,15 @@ th {
     text-align: left;
   }
 
-  /* Penataan Footer di Mobile */
   .footer .container {
     row-gap: 6px;
     column-gap: 4px;
   }
 
-  /* Baris 1: BenchmarkResult · Privacy Policy */
   .footer-brand { order: 1; }
   .sep-2 { order: 2; display: inline !important; }
   .privacy-policy-footer-link { order: 3; }
-
-  /* Sembunyikan separator pertama di mobile */
   .sep-1 { display: none; }
-
-  /* Baris 2: © 2026 HF Plays */
   .footer-copy {
     order: 4;
     width: 100%;
@@ -2746,7 +2755,7 @@ th {
 }
 
 @keyframes mobileMenuDrop {
-  from { opacity: 0; transform: translateY(-4px); }
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
