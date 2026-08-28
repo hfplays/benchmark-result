@@ -30,36 +30,52 @@
             document.documentElement.setAttribute('data-view', savedView);
         })();
     </script>
+    <!--   	<script type="text/javascript">var infolinks_pid = 3447299; var infolinks_wsid = 0;</script>
+	<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
+
+  	<script async="async" data-cfasync="false" src="https://pl31007103.profitableratecpmnetwork.com/1a47dab19e1b60562d8aa7d74403ec2d/invoke.js"></script>
+  	<script src="https://pl31007104.profitableratecpmnetwork.com/1c/6e/45/1c6e4547f2fa84df2e6cdd835bc76ca5.js"></script> -->
+
+    <script src="assets/data/db-core.js"></script>
+    <script src="assets/data/db-partners.js"></script>
+    <script src="assets/device-core.js"></script>
+    <script src="assets/device-partners.js"></script>
+    <script src="assets/app.js"></script>
 </head>
 
 <body>
     <nav class="nav">
         <div class="container nav-inner">
             <a class="brand" href="index.html">Benchmark<span>Result</span> - HF Plays</a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button"><i
-                    class="fa-solid fa-bars"></i></button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button">
+                <i class="fa-solid fa-bars"></i>
+            </button>
             <div class="links" id="navLinks">
                 <a href="index.html">Home</a>
-                <div class="nav-dropdown"><button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile
-                        <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+                        Mobile <i class="fa-solid fa-chevron-down"></i>
+                    </button>
                     <div class="nav-dropdown-menu" data-dropdown-menu="device"></div>
                 </div>
-                <div class="nav-dropdown"><button class="nav-dropdown-toggle" type="button"
-                        aria-expanded="false">Desktop <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+                        Desktop <i class="fa-solid fa-chevron-down"></i>
+                    </button>
                     <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
                 </div>
-                <div class="nav-dropdown"><button class="nav-dropdown-toggle" type="button" aria-expanded="false">Phone
-                        <i class="fa-solid fa-chevron-down"></i></button>
-                    <div class="nav-dropdown-menu" data-dropdown-menu="phone"></div>
-                </div>
                 <a href="contacts.html">Contacts</a>
-                <a href="search.html" aria-label="Search" title="Search" class="nav-search-btn"><i
-                        class="fa-solid fa-magnifying-glass"></i></a>
+                <a href="search.html" aria-label="Search" title="Search" class="nav-search-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </a>
                 <button class="view-toggle-btn" id="viewToggle" aria-label="Toggle Lite View"
-                    title="Switch to Lite Performance Mode" type="button"><i
-                        class="fa-solid fa-feather-pointed"></i></button>
+                    title="Switch to Lite Performance Mode" type="button">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                </button>
                 <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme"
-                    type="button"><i class="fa-solid fa-sun"></i></button>
+                    type="button">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -73,17 +89,19 @@
             </div>
             <div class="selects custom-select-container" id="resolutionSelect">
                 <select class="select resolution-native-select" id="resolution" aria-label="Resolution"></select>
-                <button type="button" class="select-btn" aria-haspopup="listbox" aria-expanded="false"><span
-                        class="selected-text">Loading...</span><svg class="arrow-icon" width="12" height="12"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                        stroke-linejoin="round" aria-hidden="true">
+                <button type="button" class="select-btn" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="selected-text">Loading...</span>
+                    <svg class="arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg></button>
+                    </svg>
+                </button>
                 <ul class="select-dropdown" role="listbox" aria-label="Resolution options"></ul>
             </div>
         </div>
 
-        <section class="section">
+        <!-- Frame Per Second Section -->
+        <section class="section" id="fpsSection">
             <div class="bar-meta"><span>Current resolution / setting</span><strong id="resolutionLabel">—</strong></div>
             <div class="bars">
                 <div class="bar-row">
@@ -99,28 +117,74 @@
                     </div>
                 </div>
             </div>
-            <div class="legend"><span><i class="dot"></i> Average FPS</span><span><i class="dot low"></i> 1%
-                    Low</span><span><i class="muted"></i>|</span><span class="muted">Higher is better</span></div>
-            <p class="note" id="status">Loading...</p>
+            <div class="legend">
+                <span><i class="dot"></i> Average FPS</span>
+                <span><i class="dot low"></i> 1% Low</span>
+                <span><i class="muted"></i>|</span>
+                <span class="muted">Higher is better</span>
+            </div>
         </section>
+
+        <!-- Temperature Section (Independent Row Auto-Hide) -->
+        <section class="section" id="tempSection">
+            <div class="bar-meta"><span>Temperature</span><strong>Average & Max Temp</strong></div>
+            <div class="bars" id="tempBars">
+                <div class="bar-row" id="cpuTempRow">
+                    <div class="bar-meta">
+                        <span>CPU Temperature</span>
+                        <div class="temp-value-wrap">
+                            <strong id="cpuMaxTemp">—</strong>
+                            <small class="temp-avg-badge" id="cpuAvgText"></small>
+                        </div>
+                    </div>
+                    <div class="bar-wrap">
+                        <div class="bar temp-cpu" id="cpuTempBar" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="bar-row" id="gpuTempRow">
+                    <div class="bar-meta">
+                        <span>GPU Temperature</span>
+                        <div class="temp-value-wrap">
+                            <strong id="gpuMaxTemp">—</strong>
+                            <small class="temp-avg-badge" id="gpuAvgText"></small>
+                        </div>
+                    </div>
+                    <div class="bar-wrap">
+                        <div class="bar temp-gpu" id="gpuTempBar" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="legend" id="tempLegend">
+                <span id="cpuLegendItem"><i class="dot temp-dot-cpu"></i> CPU (Max)</span>
+                <span id="gpuLegendItem"><i class="dot temp-dot-gpu"></i> GPU (Max)</span>
+                <span><i class="muted"></i>|</span>
+                <span class="muted">Lower is better</span>
+            </div>
+        </section>
+
+        <p class="note" id="status">Loading...</p>
+
         <section class="section video-section" id="gameVideoSection">
             <h2>Gameplay Showcase</h2>
             <div class="video-responsive-wrap" id="gameVideoContainer"></div>
         </section>
+
         <section class="section">
             <h2>Benchmark notes</h2>
             <p class="copy" id="gameNotes">Performance results are based on the tested resolution and settings shown
                 above.</p>
         </section>
-        <div class="actions"><a class="btn" id="backToDevice" href="index.html"><i class="fa-solid fa-arrow-left"></i>
-                Back to device</a></div>
+
+        <div class="actions">
+            <a class="btn" id="backToDevice" href="index.html">
+                <i class="fa-solid fa-arrow-left"></i> Back to device
+            </a>
+        </div>
     </main>
+
     <footer class="footer">
         <div class="container"></div>
     </footer>
-    <script defer src="assets/data/data-init.js"></script>
-    <script defer src="assets/data/db.js"></script>
-    <script defer src="assets/app.js"></script>
 </body>
 
 </html>

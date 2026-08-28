@@ -960,6 +960,46 @@ main {
   animation: barShimmer 2.2s infinite var(--ease-spring);
 }
 
+/* ============================================================================
+   Temperature Bars Styling (Max CPU & Max GPU + Avg Text Badge)
+   ============================================================================ */
+
+.temp-value-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.temp-avg-badge {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted, #8e95a5);
+}
+
+.bar.temp-cpu {
+  background: linear-gradient(90deg, #ff8800, #ff0000);
+}
+
+.bar.temp-gpu {
+  background: linear-gradient(90deg, #ffc481, #ff8800);
+}
+
+.dot.temp-dot-cpu {
+  background-color: #ff0000;
+}
+
+.dot.temp-dot-gpu {
+  background-color: #ff8800;
+}
+
+.temp-chart-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--muted, #8e95a5);
+  margin-top: 6px;
+}
+
 @keyframes barShimmer {
   100% {
     transform: translateX(100%);
@@ -1009,6 +1049,18 @@ main {
   margin: 0 0 10px;
   letter-spacing: -0.02em;
   color: var(--text-bright);
+}
+
+/* Di assets/style.css */
+.section {
+  width: 100%;
+}
+
+.copy#gameNotes {
+  max-width: 100%;       /* Hilangkan batas lebar teks */
+  width: 100%;
+  text-align: justify;    /* Opsional: agar rata kiri-kanan rapi */
+  line-height: 1.6;
 }
 
 .muted {
@@ -1068,6 +1120,7 @@ main {
 }
 
 .section-head-wrap .copy {
+  max-width: 100%;
   order: 1;
   margin: 0;
   line-height: 1.7;

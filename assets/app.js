@@ -1,5 +1,5 @@
 // ============================================================================
-// Theme & Lite View Management (Default Eco/Lite di Mobile & Tablet <= 865px)
+// Theme & Lite View Management
 // ============================================================================
 
 (function initPreferences() {
@@ -11,7 +11,6 @@
   const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
   document.documentElement.setAttribute('data-theme', initialTheme);
 
-  // Deteksi Mobile & Tablet (<= 865px)
   const isMobile = window.innerWidth <= 865 || window.matchMedia('(max-width: 865px)').matches || window.matchMedia('(pointer: coarse)').matches;
   const defaultView = isMobile ? 'lite' : 'normal';
 
@@ -87,7 +86,7 @@ function setupViewToggle() {
 }
 
 // ============================================================================
-// Mobile Header Menu (Drawer / Toggle)
+// Mobile Header Menu
 // ============================================================================
 
 const navToggle = document.getElementById('navToggle');
@@ -116,12 +115,11 @@ if (navToggle && navLinks) {
 }
 
 // ============================================================================
-// Top Privacy Policy Notice Banner (Under Navbar)
+// Privacy Policy Top Notice
 // ============================================================================
 
 (function initPrivacyTopNotice() {
   const NOTICE_DISMISSED_KEY = 'hf_privacy_top_dismissed';
-
   if (localStorage.getItem(NOTICE_DISMISSED_KEY)) return;
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -155,73 +153,13 @@ if (navToggle && navLinks) {
 })();
 
 // ============================================================================
-// Cookie Consent Management
-// ============================================================================
-
-(function initCookieConsent() {
-  const ACCEPT_KEY = 'hf_cookies_accepted';
-  const REJECT_KEY = 'hf_cookies_rejected_until';
-  const REJECT_DURATION_MS = 60 * 60 * 1000;
-
-  const isRejectActive = () => {
-    const rejectedUntil = Number(localStorage.getItem(REJECT_KEY) || '0');
-    if (!rejectedUntil) return false;
-
-    if (Date.now() > rejectedUntil) {
-      localStorage.removeItem(REJECT_KEY);
-      return false;
-    }
-    return true;
-  };
-
-  if (localStorage.getItem(ACCEPT_KEY) || isRejectActive()) return;
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const banner = document.createElement('div');
-    banner.id = 'cookieBanner';
-    banner.className = 'cookie-banner';
-    banner.innerHTML = `
-      <div class="cookie-content">
-        <div class="cookie-icon">
-          <i class="fa-solid fa-cookie-bite"></i>
-        </div>
-        <div class="cookie-text">
-          <h4>Cookie & Data Policy</h4>
-          <p>We use essential cookies to ensure optimal performance and browsing experience.</p>
-        </div>
-      </div>
-      <div class="cookie-actions">
-        <button class="cookie-btn cookie-btn-secondary" id="rejectCookieBtn">Reject</button>
-        <button class="cookie-btn" id="acceptCookieBtn">Accept All</button>
-      </div>
-    `;
-
-    document.body.appendChild(banner);
-    setTimeout(() => banner.classList.add('show'), 600);
-
-    document.getElementById('acceptCookieBtn')?.addEventListener('click', () => {
-      localStorage.setItem(ACCEPT_KEY, 'true');
-      localStorage.removeItem(REJECT_KEY);
-      banner.classList.remove('show');
-      banner.remove();
-    });
-
-    document.getElementById('rejectCookieBtn')?.addEventListener('click', () => {
-      localStorage.setItem(REJECT_KEY, String(Date.now() + REJECT_DURATION_MS));
-      localStorage.removeItem(ACCEPT_KEY);
-      banner.classList.remove('show');
-      banner.remove();
-    });
-  });
-})();
-
-// ============================================================================
-// Constants & Central Device Registry (Single Template Architecture)
+// Central Constants & Dynamic Registry
 // ============================================================================
 
 const DEFAULT_PLATFORM = 'ryzen-5-7430u';
-const DEFAULT_RESULT = { avg: 0, low: 0 };
-const MIN_CHART_HEIGHT = 75;
+const DEFAULT_RESULT = { avg: 0, low: 0, cpuMax: 0, cpuAvg: 0, gpuMax: 0, gpuAvg: 0 };
+const MIN_CHART_HEIGHT = 120;
+const MAX_TEMP_SCALE = 100;
 const MAX_PERCENTAGE = 100;
 const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
@@ -231,91 +169,14 @@ const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
 let allGamesCache = null;
 const platformGamesCache = new Map();
 
-const DEVICE_REGISTRY = {
-  'ryzen-5-7430u': {
-    label: 'Ryzen 5 7430U',
-    category: 'mobile',
-    kicker: 'Tecno Megabook K16S · 16" WUXGA (1920×1200)',
-    specs: [
-      'Processor: AMD Ryzen 5 7430U (2.30 GHz, boost up to 4.35 GHz)',
-      'Graphics: AMD Radeon Graphics RX Vega 7 (1024 MB)',
-      'RAM: 16GB (2×8GB) DDR4 3200MHz',
-      'Storage: FORESEE 512GB M.2 NVMe 3.0 SSD',
-      'OS: Windows 11 Home Single Language x64',
-    ],
-    getData: () => window.BENCHMARK_GAMES['ryzen-5-7430u'] || {},
-  },
-  'celeron-n4000': {
-    label: 'Celeron N4000',
-    category: 'mobile',
-    kicker: 'Acer Aspire 3 A314-32-C3X0 · 14" HD (1366×768)',
-    specs: [
-      'Processor: Intel Celeron N4000 (1.10 GHz, boost up to 2.60 GHz)',
-      'Graphics: Intel UHD Graphics 600 (128MB)',
-      'RAM: 8GB (4GB LPDDR4 Onboard + 4GB DDR4 2400MHz)',
-      'Storage: ADATA SU650 240GB 2.5" SATA SSD',
-      'OS: Windows 10 Home Single Language x64',
-    ],
-    getData: () => window.BENCHMARK_GAMES['celeron-n4000'] || {},
-  },
-  'ryzen-5-5500-rx-6600': {
-    label: 'Ryzen 5 5500 + RX 6600',
-    category: 'desktop',
-    kicker: 'Custom-Built PC',
-    specs: [
-      'Processor: AMD Ryzen 5 5500 3.6GHz',
-      'Graphics: AMD Radeon RX 6600 Challenger D 8GB GDDR6',
-      'RAM: VenomRX 2x8GB DDR4 3200MHz + KYO Kaizen 16GB DDR4 3200MHz',
-      'OS: Windows 11 Home x64',
-    ],
-    getData: () => window.BENCHMARK_GAMES['ryzen-5-5500-rx-6600'] || {},
-  },
-  'ryzen-5-5500-gt-1030-gd5': {
-    label: 'Ryzen 5 5500 + GT 1030',
-    category: 'desktop',
-    kicker: 'Custom-Built PC',
-    specs: [
-      'Processor: AMD Ryzen 5 5500 3.6GHz',
-      'Graphics: ASUS NVIDIA GeForce GT 1030 2GB GDDR5',
-      'RAM: VenomRX 2x8GB DDR4 3200MHz + KYO Kaizen 16GB DDR4 3200MHz',
-      'OS: Windows 11 Home x64',
-    ],
-    getData: () => window.BENCHMARK_GAMES['ryzen-5-5500-gt-1030-gd5'] || {},
-  },
-  'iqoo-z9x': {
-    label: 'iQOO Z9x',
-    category: 'phone',
-    getData: () => window.BENCHMARK_GAMES['iqoo-z9x'] || (typeof gamesIqooZ9x !== 'undefined' ? gamesIqooZ9x : {}),
-  },
-  'poco-x3-pro': {
-    label: 'POCO X3 Pro',
-    category: 'phone',
-    getData: () => window.BENCHMARK_GAMES['poco-x3-pro'] || (typeof gamesPocoX3Pro !== 'undefined' ? gamesPocoX3Pro : {}),
-  },
-};
+// Ambil registry yang sudah dimuat dari device-core.js & device-partners.js
+const DEVICE_REGISTRY = window.DEVICE_REGISTRY || {};
+const NAV_MOBILE_ITEMS = window.NAV_MOBILE_ITEMS || [];
+const NAV_DESKTOP_ITEMS = window.NAV_DESKTOP_ITEMS || [];
+const NAV_PHONE_ITEMS = window.NAV_PHONE_ITEMS || [];
 
 // ============================================================================
-// Navigation Dropdown Items Configuration
-// ============================================================================
-
-const NAV_MOBILE_ITEMS = [
-  { label: 'View All Mobile Devices →', href: 'mobile-benchmark.html', isOverview: true },
-  { label: 'Ryzen 5 7430U', href: 'device.html?platform=ryzen-5-7430u', platform: 'ryzen-5-7430u' },
-  { label: 'Celeron N4000', href: 'device.html?platform=celeron-n4000', platform: 'celeron-n4000' },
-];
-
-const NAV_DESKTOP_ITEMS = [
-  { label: 'View All Desktop Devices →', href: 'desktop-benchmark.html', isOverview: true },
-  { label: 'Ryzen 5 5500 + RX 6600', href: 'device.html?platform=ryzen-5-5500-rx-6600', platform: 'ryzen-5-5500-rx-6600' },
-  { label: 'Ryzen 5 5500 + GT 1030 GD5', href: 'device.html?platform=ryzen-5-5500-gt-1030-gd5', platform: 'ryzen-5-5500-gt-1030-gd5' },
-];
-
-const NAV_PHONE_ITEMS = [
-  { label: 'Phone', href: 'javascript:void(0)', isNotReady: true, status: 'Coming Soon' },
-];
-
-// ============================================================================
-// Data Resolution Helpers
+// Helpers
 // ============================================================================
 
 function getPlatformLabel(platform) {
@@ -334,34 +195,23 @@ function escapeHTML(value) {
 function getGameUpdateDate(slug, platform) {
   const dateStr = window.BENCHMARK_GAME_UPDATED?.[platform]?.[slug] || window.BENCHMARK_UPDATED?.[platform];
   if (!dateStr) return '';
-
   const timestamp = Date.parse(dateStr);
   if (!timestamp) return '';
-
   return DATE_FORMATTER.format(new Date(timestamp));
 }
 
 function getGamesByPlatform(platform) {
   if (platformGamesCache.has(platform)) return platformGamesCache.get(platform);
 
-  if (window.BENCHMARK_GAMES?.[platform]) {
-    const gamesData = window.BENCHMARK_GAMES[platform];
-    const flat = {};
-    Object.entries(gamesData).forEach(([key, val]) => {
-      if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
-        Object.assign(flat, val);
-      } else {
-        flat[key] = val;
-      }
-    });
-    platformGamesCache.set(platform, flat);
-    return flat;
+  const flatGames = {};
+  
+  // Ambil dari _GAME_NAMES jika ada
+  if (window._GAME_NAMES?.[platform]) {
+    Object.assign(flatGames, window._GAME_NAMES[platform]);
   }
 
-  const device = DEVICE_REGISTRY[platform];
-  const rawData = device ? device.getData() : (DEVICE_REGISTRY[DEFAULT_PLATFORM]?.getData() || {});
+  const rawData = window.BENCHMARK_GAMES?.[platform] || (DEVICE_REGISTRY[platform]?.getData ? DEVICE_REGISTRY[platform].getData() : {});
 
-  const flatGames = {};
   Object.entries(rawData).forEach(([key, val]) => {
     if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
       Object.assign(flatGames, val);
@@ -378,28 +228,28 @@ function getAllGames() {
   if (allGamesCache) return [...allGamesCache];
 
   const allGames = [];
+  const processedKeys = new Set();
 
   Object.entries(DEVICE_REGISTRY).forEach(([platformSlug, config]) => {
-    const rawData = config.getData();
-
+    const rawData = config.getData ? config.getData() : (window.BENCHMARK_GAMES?.[platformSlug] || {});
+    
     Object.entries(rawData).forEach(([key, value]) => {
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         const year = key;
         Object.entries(value).forEach(([slug, name]) => {
-          allGames.push({
-            slug,
-            name,
-            year,
-            platform: platformSlug,
-          });
+          const uniqueKey = `${platformSlug}:${slug}`;
+          if (!processedKeys.has(uniqueKey)) {
+            processedKeys.add(uniqueKey);
+            allGames.push({ slug, name, year, platform: platformSlug });
+          }
         });
       } else {
-        allGames.push({
-          slug: key,
-          name: value,
-          year: '',
-          platform: platformSlug,
-        });
+        const uniqueKey = `${platformSlug}:${key}`;
+        if (!processedKeys.has(uniqueKey)) {
+          processedKeys.add(uniqueKey);
+          const autoYear = (window.BENCHMARK_GAME_UPDATED?.[platformSlug]?.[key] || '').slice(0, 4);
+          allGames.push({ slug: key, name: value, year: autoYear, platform: platformSlug });
+        }
       }
     });
   });
@@ -408,10 +258,6 @@ function getAllGames() {
   return [...allGamesCache];
 }
 
-// ============================================================================
-// Dynamic Rolling Number Counter Animation
-// ============================================================================
-
 function animateValue(element, start, end, duration = 600, suffix = '') {
   if (!element || isNaN(end)) return;
 
@@ -419,7 +265,6 @@ function animateValue(element, start, end, duration = 600, suffix = '') {
   const step = (timestamp) => {
     if (!startTimestamp) startTimestamp = timestamp;
     const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-
     const easeOutProgress = 1 - Math.pow(1 - progress, 3);
     const currentValue = start + (end - start) * easeOutProgress;
 
@@ -438,10 +283,6 @@ function animateValue(element, start, end, duration = 600, suffix = '') {
 
   window.requestAnimationFrame(step);
 }
-
-// ============================================================================
-// Navigation Pathing & Dynamic Dropdown UI
-// ============================================================================
 
 function normalizeNavPath(path) {
   return (path || '').replace(/\\/g, '/').replace(/^\/+/, '').replace(/\/+/g, '/');
@@ -472,7 +313,6 @@ function buildRelativeHref(targetPath) {
 
 function renderNavDropdown(key) {
   const menus = document.querySelectorAll(`[data-dropdown-menu="${key}"]`);
-
   let items = [];
   if (key === 'device' || key === 'mobile') items = NAV_MOBILE_ITEMS;
   else if (key === 'desktop') items = NAV_DESKTOP_ITEMS;
@@ -545,10 +385,6 @@ function initNavDropdowns() {
   });
 }
 
-// ============================================================================
-// Auto Responsive Search Nav & Interaction Handlers (365px, 865px, 985px)
-// ============================================================================
-
 function initComingSoonControls() {
   document.querySelectorAll('.btn-coming-soon').forEach((btn) => {
     btn.style.cursor = 'not-allowed';
@@ -574,7 +410,6 @@ function initResponsiveSearchNav() {
   const cleanBrandText = () => {
     if (!brand) return;
     const width = window.innerWidth;
-
     if (width <= 365) {
       brand.innerHTML = 'HF <span>Plays</span> - BR';
     } else if (width <= 865) {
@@ -594,45 +429,25 @@ function initResponsiveSearchNav() {
     navActions.appendChild(navToggle);
   }
 
-  const mediaQuery865 = window.matchMedia('(max-width: 865px)');
-  const mediaQuery985 = window.matchMedia('(max-width: 985px)');
-  const mediaQuery365 = window.matchMedia('(max-width: 365px)');
-
   const handleLayoutChange = () => {
     cleanBrandText();
-
     if (window.innerWidth <= 865) {
-      if (searchBtn && navActions && !navActions.contains(searchBtn)) {
-        navActions.insertBefore(searchBtn, navToggle);
-      }
-      if (viewBtn && navActions && !navActions.contains(viewBtn)) {
-        navActions.insertBefore(viewBtn, navToggle);
-      }
-      if (themeBtn && navActions && !navActions.contains(themeBtn)) {
-        navActions.insertBefore(themeBtn, navToggle);
-      }
+      if (searchBtn && navActions && !navActions.contains(searchBtn)) navActions.insertBefore(searchBtn, navToggle);
+      if (viewBtn && navActions && !navActions.contains(viewBtn)) navActions.insertBefore(viewBtn, navToggle);
+      if (themeBtn && navActions && !navActions.contains(themeBtn)) navActions.insertBefore(themeBtn, navToggle);
     } else {
-      if (searchBtn && navLinks && !navLinks.contains(searchBtn)) {
-        navLinks.appendChild(searchBtn);
-      }
-      if (viewBtn && navLinks && !navLinks.contains(viewBtn)) {
-        navLinks.appendChild(viewBtn);
-      }
-      if (themeBtn && navLinks && !navLinks.contains(themeBtn)) {
-        navLinks.appendChild(themeBtn);
-      }
+      if (searchBtn && navLinks && !navLinks.contains(searchBtn)) navLinks.appendChild(searchBtn);
+      if (viewBtn && navLinks && !navLinks.contains(viewBtn)) navLinks.appendChild(viewBtn);
+      if (themeBtn && navLinks && !navLinks.contains(themeBtn)) navLinks.appendChild(themeBtn);
     }
   };
 
-  mediaQuery865.addEventListener('change', handleLayoutChange);
-  mediaQuery985.addEventListener('change', handleLayoutChange);
-  mediaQuery365.addEventListener('change', handleLayoutChange);
   window.addEventListener('resize', handleLayoutChange);
   handleLayoutChange();
 }
 
 // ============================================================================
-// Unified Universal Search & Sort (Global Search, Games & Device Cards)
+// Search & Sort Handlers
 // ============================================================================
 
 function renderGameCards(games, sortMode = 'latest') {
@@ -645,10 +460,13 @@ function renderGameCards(games, sortMode = 'latest') {
   }
 
   const collator = new Intl.Collator('en', { sensitivity: 'base' });
-  const sortedGames =
-    sortMode === 'alphabetical'
-      ? [...games].sort((a, b) => collator.compare(a.name, b.name))
-      : games;
+  const sortedGames = sortMode === 'alphabetical'
+    ? [...games].sort((a, b) => collator.compare(a.name, b.name))
+    : [...games].sort((a, b) => {
+        const timeA = Date.parse(window.BENCHMARK_GAME_UPDATED?.[a.platform]?.[a.slug] || window.BENCHMARK_UPDATED?.[a.platform] || '') || 0;
+        const timeB = Date.parse(window.BENCHMARK_GAME_UPDATED?.[b.platform]?.[b.slug] || window.BENCHMARK_UPDATED?.[b.platform] || '') || 0;
+        return timeB - timeA;
+      });
 
   resultsContainer.innerHTML = sortedGames
     .map((game, index) => {
@@ -674,12 +492,11 @@ function renderGameCards(games, sortMode = 'latest') {
 function handleUnifiedSearchAndSort() {
   const searchInput = document.getElementById('deviceGameSearch');
   const collator = new Intl.Collator('en', { sensitivity: 'base' });
-
   const globalSearchContainer = document.getElementById('resultsContainer');
+  const countBadge = document.getElementById('searchGameCount');
   const gameListContainer = document.querySelector('[data-game-list]');
   const deviceGridContainer = document.querySelector('.device-grid');
 
-  // KONDISI 1: Halaman Pencarian Global (search.html)
   if (globalSearchContainer) {
     const sortButtons = document.querySelectorAll('[data-search-sort]');
     const allGames = getAllGames();
@@ -689,24 +506,21 @@ function handleUnifiedSearchAndSort() {
       const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
       if (!query) {
+        if (countBadge) countBadge.textContent = `${allGames.length} Games Tested`;
         renderGameCards(allGames, activeSort);
         return;
       }
 
       const filteredGames = allGames.filter((game) => {
-        const gameName = game.name.toLowerCase();
-        const gameSlug = game.slug.toLowerCase();
-        const platformSlug = game.platform.toLowerCase();
-        const platformLabel = getPlatformLabel(game.platform).toLowerCase();
-
         return (
-          gameName.includes(query) ||
-          gameSlug.includes(query) ||
-          platformSlug.includes(query) ||
-          platformLabel.includes(query)
+          game.name.toLowerCase().includes(query) ||
+          game.slug.toLowerCase().includes(query) ||
+          game.platform.toLowerCase().includes(query) ||
+          getPlatformLabel(game.platform).toLowerCase().includes(query)
         );
       });
 
+      if (countBadge) countBadge.textContent = `${filteredGames.length} Games`;
       renderGameCards(filteredGames, activeSort);
     };
 
@@ -718,28 +532,34 @@ function handleUnifiedSearchAndSort() {
       });
     });
 
-    if (searchInput) {
-      searchInput.addEventListener('input', performGlobalSearch);
-    }
+    if (searchInput) searchInput.addEventListener('input', performGlobalSearch);
     performGlobalSearch();
     return;
   }
 
-  // KONDISI 2: Halaman Detail Device (device.html -> filter list game)
   if (gameListContainer) {
     const platform = getCurrentPlatform();
-    const rawData = DEVICE_REGISTRY[platform]?.getData() || {};
+    const rawData = DEVICE_REGISTRY[platform]?.getData ? DEVICE_REGISTRY[platform].getData() : (window.BENCHMARK_GAMES?.[platform] || {});
     const sortButtons = document.querySelectorAll('[data-game-sort]');
 
     const rawGames = [];
+    const addedSlugs = new Set();
+
     Object.entries(rawData).forEach(([key, value]) => {
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         const year = key;
         Object.entries(value).forEach(([slug, name]) => {
-          rawGames.push({ slug, name, year });
+          if (!addedSlugs.has(slug)) {
+            addedSlugs.add(slug);
+            rawGames.push({ slug, name, year });
+          }
         });
       } else {
-        rawGames.push({ slug: key, name: value, year: '' });
+        if (!addedSlugs.has(key)) {
+          addedSlugs.add(key);
+          const autoYear = (window.BENCHMARK_GAME_UPDATED?.[platform]?.[key] || '').slice(0, 4);
+          rawGames.push({ slug: key, name: value, year: autoYear });
+        }
       }
     });
 
@@ -791,14 +611,11 @@ function handleUnifiedSearchAndSort() {
       });
     });
 
-    if (searchInput) {
-      searchInput.addEventListener('input', renderGames);
-    }
+    if (searchInput) searchInput.addEventListener('input', renderGames);
     renderGames();
     return;
   }
 
-  // KONDISI 3: Halaman Kategori Device (mobile/desktop/phone-benchmark.html -> filter kartu device)
   if (deviceGridContainer) {
     const originalCards = Array.from(deviceGridContainer.querySelectorAll('.device-card'));
     const sortButtons = document.querySelectorAll('[data-device-sort]');
@@ -816,11 +633,7 @@ function handleUnifiedSearchAndSort() {
       });
 
       if (activeSort === 'alphabetical') {
-        filtered.sort((a, b) => {
-          const nameA = a.querySelector('h3')?.textContent || '';
-          const nameB = b.querySelector('h3')?.textContent || '';
-          return collator.compare(nameA, nameB);
-        });
+        filtered.sort((a, b) => collator.compare(a.querySelector('h3')?.textContent || '', b.querySelector('h3')?.textContent || ''));
       } else {
         filtered.sort((a, b) => {
           const timeA = Date.parse(window.BENCHMARK_UPDATED?.[a.dataset.devicePlatform] || '') || 0;
@@ -849,15 +662,13 @@ function handleUnifiedSearchAndSort() {
       });
     });
 
-    if (searchInput) {
-      searchInput.addEventListener('input', renderDevices);
-    }
+    if (searchInput) searchInput.addEventListener('input', renderDevices);
     renderDevices();
   }
 }
 
 // ============================================================================
-// Benchmark UI & Discovery (Centralized Single Template)
+// Benchmark UI & Data Engine
 // ============================================================================
 
 function getCurrentPlatform() {
@@ -866,8 +677,18 @@ function getCurrentPlatform() {
 }
 
 function getResult(slug, platform, resolution) {
-  if (typeof DATA === 'undefined') return DEFAULT_RESULT;
-  return DATA[slug]?.[platform]?.[resolution] || DEFAULT_RESULT;
+  if (typeof DATA === 'undefined' && typeof window.DATA === 'undefined') return DEFAULT_RESULT;
+  const db = window.DATA || DATA || {};
+  const data = db[slug]?.[platform]?.[resolution] || db[platform]?.[slug]?.[resolution] || DEFAULT_RESULT;
+
+  return {
+    avg: Number(data.avg) || 0,
+    low: Number(data.low) || 0,
+    cpuMax: Number(data.cpuMax ?? data.cpu_max ?? data.cpuTemp ?? data.tempMax) || 0,
+    cpuAvg: Number(data.cpuAvg ?? data.cpu_avg) || 0,
+    gpuMax: Number(data.gpuMax ?? data.gpu_max ?? data.gpuTemp ?? data.tempAvg) || 0,
+    gpuAvg: Number(data.gpuAvg ?? data.gpu_avg) || 0,
+  };
 }
 
 function getBenchmarkHref(slug, platform, year) {
@@ -892,7 +713,10 @@ function initBenchmarkTemplate() {
   const games = getGamesByPlatform(platform);
   const gameName = games[slug] || slug || 'Benchmark';
   const config = DEVICE_REGISTRY[platform];
-  const resolutions = Object.keys(window.DATA?.[slug]?.[platform] || {});
+
+  const db = window.DATA || {};
+  const dataNode = db[slug]?.[platform] || db[platform]?.[slug] || {};
+  const resolutions = Object.keys(dataNode);
   const resolution = document.getElementById('resolution');
   const dropdown = document.querySelector('#resolutionSelect .select-dropdown');
 
@@ -901,9 +725,10 @@ function initBenchmarkTemplate() {
   document.body.dataset.year = params.get('year') || '';
   document.title = `${gameName} — ${getPlatformLabel(platform)} Benchmark`;
   titleElement.textContent = gameName;
+
   const eyebrow = document.getElementById('gameEyebrow');
   if (eyebrow) eyebrow.textContent = `Gaming test · ${getPlatformLabel(platform)}`;
-  
+
   const kicker = document.getElementById('gameKicker');
   if (kicker) {
     kicker.textContent = config?.category === 'desktop'
@@ -922,6 +747,7 @@ function initBenchmarkTemplate() {
     } else {
       resolution.innerHTML = resolutions.map((value) => `<option value="${value.replace(/"/g, '&quot;')}">${value}</option>`).join('');
       dropdown.innerHTML = resolutions.map((value, index) => `<li role="option" data-value="${value.replace(/"/g, '&quot;')}" aria-selected="${index === 0}">${value}</li>`).join('');
+      resolution.value = resolutions[0];
     }
   }
 
@@ -942,19 +768,13 @@ function renderDiscoveryGames() {
   if (!container) return;
 
   const allGames = getAllGames();
-
   allGames.sort((a, b) => {
     const rawDateA = window.BENCHMARK_GAME_UPDATED?.[a.platform]?.[a.slug] || window.BENCHMARK_UPDATED?.[a.platform] || '';
     const rawDateB = window.BENCHMARK_GAME_UPDATED?.[b.platform]?.[b.slug] || window.BENCHMARK_UPDATED?.[b.platform] || '';
-
-    const timeA = Date.parse(rawDateA) || 0;
-    const timeB = Date.parse(rawDateB) || 0;
-
-    return timeB - timeA;
+    return (Date.parse(rawDateB) || 0) - (Date.parse(rawDateA) || 0);
   });
 
   const latestGames = allGames.slice(0, 10);
-
   if (latestGames.length === 0) {
     container.innerHTML = '<div class="no-results" style="grid-column: 1 / -1;">No game tests available.</div>';
     return;
@@ -965,7 +785,6 @@ function renderDiscoveryGames() {
       const updateDate = getGameUpdateDate(game.slug, game.platform);
       const staggerDelay = (index * 0.05).toFixed(2);
       const relativePath = getBenchmarkHref(game.slug, game.platform, game.year);
-
       return `
         <a href="${relativePath}" class="discovery-item" style="animation-delay: ${staggerDelay}s;">
           <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -993,7 +812,6 @@ function initDeviceTemplate() {
 
   document.body.dataset.platform = platform;
   document.title = `${config.label} — Benchmark Result`;
-
   titleElement.textContent = config.label;
 
   const kicker = document.getElementById('deviceKicker');
@@ -1011,7 +829,7 @@ function initDeviceTemplate() {
     const pKicker = document.getElementById('playableKicker');
     if (pTitle) pTitle.textContent = `Playable Games on ${config.label}`;
     if (pKicker) pKicker.textContent = `Games verified to be playable on ${config.label}.`;
-    
+
     const pBackTop = document.getElementById('playableBackTop');
     const pBackBottom = document.getElementById('playableBackBottom');
     if (pBackTop) pBackTop.href = getDeviceHref(platform);
@@ -1028,14 +846,11 @@ function initDeviceTemplate() {
   }
 
   const playableLink = document.getElementById('playableLink');
-  if (playableLink) {
-    playableLink.href = getDeviceHref(platform, 'playable');
-  }
+  if (playableLink) playableLink.href = getDeviceHref(platform, 'playable');
 }
 
 function renderDevicePageUpdate() {
   if (document.body.dataset.game) return;
-
   const isDeviceDetailPage = document.querySelector('[data-game-list]') || document.getElementById('deviceTitle');
   if (!isDeviceDetailPage) return;
 
@@ -1047,7 +862,6 @@ function renderDevicePageUpdate() {
   if (!timestamp) return;
 
   const formattedDate = DATE_FORMATTER.format(new Date(timestamp));
-
   const heading = document.querySelector('#deviceTitle') || document.querySelector('h1');
   if (heading) {
     const dateBadge = document.createElement('div');
@@ -1066,31 +880,34 @@ function renderPlayableGameList() {
   if (!container) return;
 
   const platform = getCurrentPlatform();
-  const rawData = DEVICE_REGISTRY[platform]?.getData() || {};
+  const rawData = DEVICE_REGISTRY[platform]?.getData ? DEVICE_REGISTRY[platform].getData() : (window.BENCHMARK_GAMES?.[platform] || {});
   const sortButtons = document.querySelectorAll('[data-playable-sort]');
   const searchInput = document.getElementById('playableGameSearch');
   const countBadge = document.getElementById('playableCount');
   const collator = new Intl.Collator('en', { sensitivity: 'base' });
 
   const playableGames = [];
+  const addedSlugs = new Set();
+
   Object.entries(rawData).forEach(([key, value]) => {
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       const year = key;
       Object.entries(value).forEach(([slug, name]) => {
-        if (window.BENCHMARK_PLAYABLE?.[platform]?.[slug] === true) {
+        if (window.BENCHMARK_PLAYABLE?.[platform]?.[slug] === true && !addedSlugs.has(slug)) {
+          addedSlugs.add(slug);
           playableGames.push({ slug, name, year });
         }
       });
     } else {
-      if (window.BENCHMARK_PLAYABLE?.[platform]?.[key] === true) {
-        playableGames.push({ slug: key, name: value, year: '' });
+      if (window.BENCHMARK_PLAYABLE?.[platform]?.[key] === true && !addedSlugs.has(key)) {
+        addedSlugs.add(key);
+        const autoYear = (window.BENCHMARK_GAME_UPDATED?.[platform]?.[key] || '').slice(0, 4);
+        playableGames.push({ slug: key, name: value, year: autoYear });
       }
     }
   });
 
-  if (countBadge) {
-    countBadge.textContent = `${playableGames.length} Games`;
-  }
+  if (countBadge) countBadge.textContent = `${playableGames.length} Games`;
 
   const render = () => {
     const activeSort = document.querySelector('[data-playable-sort].is-active')?.dataset.playableSort || 'latest';
@@ -1119,7 +936,6 @@ function renderPlayableGameList() {
       .map((item, index) => {
         const updateDate = getGameUpdateDate(item.slug, platform);
         const staggerDelay = (index * 0.05).toFixed(2);
-
         return `
           <a href="${getBenchmarkHref(item.slug, platform, item.year)}" class="device-game-item" style="animation-delay: ${staggerDelay}s;">
             <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -1141,16 +957,15 @@ function renderPlayableGameList() {
     });
   });
 
-  if (searchInput) {
-    searchInput.addEventListener('input', render);
-  }
-
+  if (searchInput) searchInput.addEventListener('input', render);
   render();
 }
 
 function getDOMElements() {
   const avgDisplay = document.querySelector('#avg');
   const lowDisplay = document.querySelector('#low');
+  const cpuMaxDisplay = document.querySelector('#cpuMaxTemp');
+  const gpuMaxDisplay = document.querySelector('#gpuMaxTemp');
 
   const createFrameTimeDisplay = (display) => {
     if (!display) return null;
@@ -1163,12 +978,24 @@ function getDOMElements() {
 
   return {
     resolutionSelect: document.querySelector('#resolution'),
-    bars: document.querySelector('.bars'),
+    bars: document.querySelector('#fpsSection .bars') || document.querySelector('.bars'),
+    tempBars: document.querySelector('#tempBars'),
+    tempSection: document.querySelector('#tempSection'),
+    cpuTempRow: document.querySelector('#cpuTempRow'),
+    gpuTempRow: document.querySelector('#gpuTempRow'),
+    cpuLegendItem: document.querySelector('#cpuLegendItem'),
+    gpuLegendItem: document.querySelector('#gpuLegendItem'),
     avgDisplay,
     lowDisplay,
+    cpuMaxDisplay,
+    gpuMaxDisplay,
+    cpuAvgText: document.querySelector('#cpuAvgText'),
+    gpuAvgText: document.querySelector('#gpuAvgText'),
     avgFrameTime: document.querySelector('#avgFrameTime') || createFrameTimeDisplay(avgDisplay),
     avgBar: document.querySelector('#avgBar'),
     lowBar: document.querySelector('#lowBar'),
+    cpuTempBar: document.querySelector('#cpuTempBar'),
+    gpuTempBar: document.querySelector('#gpuTempBar'),
     resolutionLabel: document.querySelector('#resolutionLabel'),
     statusDisplay: document.querySelector('#status'),
   };
@@ -1271,9 +1098,7 @@ function renderBench() {
     dateBadge.innerHTML = `<i class="fa-regular fa-calendar"></i> Tested ${updateDate}`;
 
     const heading = document.querySelector('h1');
-    if (heading) {
-      heading.insertAdjacentElement('afterend', dateBadge);
-    }
+    if (heading) heading.insertAdjacentElement('afterend', dateBadge);
   }
 
   if (!elements.resolutionSelect) return;
@@ -1283,15 +1108,22 @@ function renderBench() {
   if (elements.bars && !elements.bars.nextElementSibling?.classList.contains('chart-scale')) {
     const chartScale = document.createElement('div');
     chartScale.className = 'chart-scale';
-    chartScale.innerHTML = '<span>0 FPS</span><span>75 FPS</span>';
+    chartScale.innerHTML = '<span>0 FPS</span><span>120 FPS</span>';
     elements.bars.insertAdjacentElement('afterend', chartScale);
+  }
+
+  if (elements.tempBars && !elements.tempBars.nextElementSibling?.classList.contains('temp-chart-scale')) {
+    const tempScale = document.createElement('div');
+    tempScale.className = 'chart-scale temp-chart-scale';
+    tempScale.innerHTML = '<span>0°C</span><span>50°C</span><span>100°C</span>';
+    elements.tempBars.insertAdjacentElement('afterend', tempScale);
   }
 
   const updateDisplay = () => {
     const selectedResolution = elements.resolutionSelect.value;
     const result = getResult(slug, platform, selectedResolution);
-    const maxValue = Math.max(result.avg, result.low, MIN_CHART_HEIGHT, 1);
 
+    const maxFpsValue = Math.max(result.avg, result.low, MIN_CHART_HEIGHT, 1);
     const currentAvg = parseFloat(elements.avgDisplay?.textContent) || 0;
     const currentLow = parseFloat(elements.lowDisplay?.textContent) || 0;
 
@@ -1302,11 +1134,45 @@ function renderBench() {
       animateValue(elements.avgFrameTime, 0, targetMs, 600, 'ms');
     }
 
-    if (elements.avgBar) elements.avgBar.style.width = `${calculateBarWidth(result.avg, maxValue)}%`;
-    if (elements.lowBar) elements.lowBar.style.width = `${calculateBarWidth(result.low, maxValue)}%`;
+    if (elements.avgBar) elements.avgBar.style.width = `${calculateBarWidth(result.avg, maxFpsValue)}%`;
+    if (elements.lowBar) elements.lowBar.style.width = `${calculateBarWidth(result.low, maxFpsValue)}%`;
     if (elements.resolutionLabel) elements.resolutionLabel.textContent = selectedResolution || '—';
 
-    // Penanganan Keterangan Status / Capture Card
+    const hasCpuTemp = result.cpuMax > 0 || result.cpuAvg > 0;
+    const hasGpuTemp = result.gpuMax > 0 || result.gpuAvg > 0;
+
+    if (elements.cpuTempRow) {
+      elements.cpuTempRow.style.display = hasCpuTemp ? 'block' : 'none';
+    }
+    if (elements.cpuLegendItem) {
+      elements.cpuLegendItem.style.display = hasCpuTemp ? 'inline-flex' : 'none';
+    }
+
+    if (hasCpuTemp) {
+      const currentCpuMax = parseFloat(elements.cpuMaxDisplay?.textContent) || 0;
+      if (elements.cpuMaxDisplay) animateValue(elements.cpuMaxDisplay, currentCpuMax, result.cpuMax, 600, '°C');
+      if (elements.cpuAvgText) elements.cpuAvgText.textContent = result.cpuAvg > 0 ? `(Avg: ${result.cpuAvg}°C)` : '';
+      if (elements.cpuTempBar) elements.cpuTempBar.style.width = `${calculateBarWidth(result.cpuMax, MAX_TEMP_SCALE)}%`;
+    }
+
+    if (elements.gpuTempRow) {
+      elements.gpuTempRow.style.display = hasGpuTemp ? 'block' : 'none';
+    }
+    if (elements.gpuLegendItem) {
+      elements.gpuLegendItem.style.display = hasGpuTemp ? 'inline-flex' : 'none';
+    }
+
+    if (hasGpuTemp) {
+      const currentGpuMax = parseFloat(elements.gpuMaxDisplay?.textContent) || 0;
+      if (elements.gpuMaxDisplay) animateValue(elements.gpuMaxDisplay, currentGpuMax, result.gpuMax, 600, '°C');
+      if (elements.gpuAvgText) elements.gpuAvgText.textContent = result.gpuAvg > 0 ? `(Avg: ${result.gpuAvg}°C)` : '';
+      if (elements.gpuTempBar) elements.gpuTempBar.style.width = `${calculateBarWidth(result.gpuMax, MAX_TEMP_SCALE)}%`;
+    }
+
+    if (elements.tempSection) {
+      elements.tempSection.style.display = (hasCpuTemp || hasGpuTemp) ? 'block' : 'none';
+    }
+
     if (elements.statusDisplay) {
       const hasData = result.avg > 0 || result.low > 0;
       const customStatus = window.BENCHMARK_STATUS?.[platform]?.[slug];
@@ -1463,7 +1329,7 @@ function initDeviceCardsUpdated() {
 }
 
 // ============================================================================
-// Initialization
+// DOM Initialization
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
