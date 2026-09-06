@@ -2532,6 +2532,16 @@ th {
   font-size: .74rem;
 }
 
+.footer-legal {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: .25rem .4rem;
+}
+
+.footer-legal span {
+  display: inline-block;
+}
+
 @media (max-width: 600px) {
   .editorial-page {
     padding-top: 3.5rem;
@@ -2560,6 +2570,25 @@ th {
   .footer-main {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .footer,
+  .footer-main,
+  .footer-links,
+  .footer-legal {
+    text-align: center;
+  }
+
+  .footer-main,
+  .footer-links,
+  .footer-legal {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .footer-legal {
+    flex-direction: column;
+    gap: .2rem;
   }
 
   .footer {

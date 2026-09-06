@@ -1401,7 +1401,10 @@ function initPrivacyPolicyFooter() {
         <a href="${buildRelativeHref('privacy-policy.html')}">Privacy Policy</a>
         <a href="${buildRelativeHref('contacts.html')}">Contact</a>
       </nav>
-      <small class="footer-copy">© 2026 HF Plays. Results are based on the published test conditions.</small>
+      <small class="footer-copy footer-legal">
+        <span>© 2026 HF Plays.</span>
+        <span>Results are based on the published test conditions.</span>
+      </small>
     `;
   });
 }
