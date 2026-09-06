@@ -32,10 +32,6 @@
     </script>
 
 
-    <script async="async" data-cfasync="false"
-        src="https://pl31007103.profitableratecpmnetwork.com/1a47dab19e1b60562d8aa7d74403ec2d/invoke.js"></script>
-    <script src="https://pl31007104.profitableratecpmnetwork.com/1c/6e/45/1c6e4547f2fa84df2e6cdd835bc76ca5.js"></script>
-
     <script src="assets/data/db-core.js"></script>
     <script src="assets/data/db-partners.js"></script>
     <script src="assets/device-core.js"></script>
@@ -164,6 +160,14 @@
 
         <p class="note" id="status">Loading...</p>
 
+        <section class="section benchmark-details" id="benchmarkDetailsSection" hidden>
+            <div class="benchmark-details-header">
+                <h2>Test conditions</h2>
+                <span class="result-status" id="resultStatus"></span>
+            </div>
+            <div class="benchmark-metadata" id="benchmarkMetadata"></div>
+        </section>
+
         <section class="section video-section" id="gameVideoSection">
             <h2>Gameplay Showcase</h2>
             <div class="video-responsive-wrap" id="gameVideoContainer"></div>
@@ -175,12 +179,19 @@
                 above.</p>
         </section>
 
+        <section class="section full-reading-section">
+            <h2>How to read this result</h2>
+            <p class="copy full-reading-copy">Average FPS describes the overall frame rate during the recorded run. The 1% Low value
+                shows slower moments that the average can hide. Compare results using similar settings, then read the
+                <a style="color: #3b82f6; text-decoration: underline;" href="methodology.html">testing methodology</a> for the full procedure and limitations.</p>
+        </section>
+
         <div class="actions">
             <a class="btn" id="backToDevice" href="index.html">
                 <i class="fa-solid fa-arrow-left"></i> Back to device
             </a>
         </div>
-        <div id="container-1a47dab19e1b60562d8aa7d74403ec2d"></div>
+        
     </main>
 
     <footer class="footer">

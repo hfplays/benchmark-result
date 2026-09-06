@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>About BenchmarkResult</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+    <script src="assets/data/db-core.js"></script>
+    <script src="assets/data/db-partners.js"></script>
+    <script src="assets/device-core.js"></script>
+    <script src="assets/device-partners.js"></script>
+    <script src="assets/app.js"></script>
+</head>
+<body>
+    <nav class="nav"><div class="container nav-inner">
+        <a class="brand" href="index.html">Benchmark<span>Result</span> - HF Plays</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button"><i class="fa-solid fa-bars"></i></button>
+        <div class="links" id="navLinks">
+            <a href="index.html">Home</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown-menu" data-dropdown-menu="device"></div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Desktop <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
+            </div>
+            <a href="contacts.html">Contacts</a>
+            <a href="search.html" aria-label="Search" title="Search" class="nav-search-btn"><i class="fa-solid fa-magnifying-glass"></i></a>
+            <button class="view-toggle-btn" id="viewToggle" aria-label="Toggle Lite View" title="Switch to Lite Performance Mode" type="button"><i class="fa-solid fa-feather-pointed"></i></button>
+            <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme" type="button"><i class="fa-solid fa-sun"></i></button>
+        </div>
+    </div></nav>
+    <main class="container policy-page">
+        <div class="eyebrow anim-title">
+            <h1>About BenchmarkResult</h1>
+        </div>
+        <p class="policy-updated">An independent gaming performance archive by HF Plays</p>
+        <article class="policy-content">
+            <div class="policy-bubble policy-intro">
+                <p><strong>BenchmarkResult</strong> is a public archive of real-world gaming tests published by HF Plays. It helps viewers understand what a specific laptop, desktop, or integrated GPU can realistically deliver before changing settings or making a hardware decision.</p>
+            </div>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-database"></i> What We Publish</h2>
+                <p>Each entry connects a game with the device, resolution, graphics preset, Average FPS, 1% Low FPS, temperature readings, test date, and available video evidence. The archive is organized by mobile and desktop hardware so readers can move from a device overview to a specific game result.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-user-check"></i> Who Maintains It</h2>
+                <p>BenchmarkResult is maintained by the HF Plays team. Games are tested through a hands-on workflow using HDMI capture, a separate recording device, and an on-screen performance overlay. Results are reviewed and added to the archive after the related video is prepared for publication.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-chart-simple"></i> Why the Archive Exists</h2>
+                <p>Average FPS alone does not tell the whole story. By preserving 1% Low FPS, temperature readings, settings, and practical conclusions, the archive gives viewers more context for deciding whether a game is playable and which settings are worth trying.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-book-open"></i> How to Use the Results</h2>
+                <p>Start with the <a href="mobile-benchmark.html">Mobile</a> or <a href="desktop-benchmark.html">Desktop</a> device list, open a device, and choose a game. Read Average FPS together with 1% Low: a large gap can indicate dips or an inconsistent experience. Compare results only when the resolution, preset, driver, power mode, and memory configuration are similar.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-brands fa-youtube"></i> Official HF Plays Channels</h2>
+                <p>Testing footage and benchmark showcases are published on the <a href="https://www.youtube.com/@hfplays" target="_blank" rel="noopener noreferrer">HF Plays YouTube channel</a>. The community can also follow HF Plays on <a href="https://www.tiktok.com/@6hfplays" target="_blank" rel="noopener noreferrer">TikTok</a> and join <a href="https://discord.gg/anyueZ2xdF" target="_blank" rel="noopener noreferrer">HF Verse on Discord</a>. The <a href="https://landing.hfplays.com" target="_blank" rel="noopener noreferrer">Main Portal</a> provides the wider HF Plays project context.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-envelope"></i> Suggestions and Corrections</h2>
+                <p>Subscriber game requests, hardware questions, and corrections are welcome. Send them through the <a href="contacts.html">Contacts page</a> and include the game, device, and result URL when relevant so the team can review the request accurately.</p>
+            </section>
+        </article>
+    </main>
+    <footer class="footer"><div class="container"></div></footer>
+</body>
+</html>

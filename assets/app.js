@@ -206,6 +206,73 @@ function getGameUpdateDate(slug, platform) {
   return DATE_FORMATTER.format(new Date(timestamp));
 }
 
+function getResultStatus(slug, platform) {
+  const explicitStatus = window.BENCHMARK_RESULT_STATUS?.[platform]?.[slug];
+  if (explicitStatus) return explicitStatus;
+
+  const playable = window.BENCHMARK_PLAYABLE?.[platform]?.[slug];
+  if (playable === true) return 'playable';
+  if (playable === false) return 'not-playable';
+  const statusText = window.BENCHMARK_STATUS?.[platform]?.[slug];
+  if (typeof statusText === 'string' && /fail|launch|crash|error/i.test(statusText)) return 'failed-to-launch';
+  return '';
+}
+
+function getResultStatusLabel(status) {
+  return {
+    playable: 'Playable',
+    'playable-with-compromises': 'Playable with compromises',
+    'not-playable': 'Not playable',
+    'failed-to-launch': 'Failed to launch',
+    'no-benchmark-data': 'No benchmark data',
+  }[status] || '';
+}
+
+function getRecommendedSetting(slug, platform) {
+  return window.BENCHMARK_METADATA?.[platform]?.[slug]?.recommendedSetting || '';
+}
+
+function renderBenchmarkDetails(slug, platform) {
+  const section = document.getElementById('benchmarkDetailsSection');
+  const metadataContainer = document.getElementById('benchmarkMetadata');
+  const statusElement = document.getElementById('resultStatus');
+  if (!section || !metadataContainer || !statusElement) return;
+
+  const metadata = window.BENCHMARK_METADATA?.[platform]?.[slug] || {};
+  const labels = {
+    gameVersion: 'Game version',
+    driver: 'Graphics driver',
+    operatingSystem: 'Operating system',
+    memory: 'Memory',
+    powerMode: 'Power mode',
+    captureMethod: 'Capture method',
+    recordingDevice: 'Recording device',
+  };
+  const recommendedSetting = getRecommendedSetting(slug, platform);
+  const metadataEntries = Object.entries(labels)
+    .filter(([key]) => metadata[key])
+    .map(([key, label]) => `<div class="benchmark-metadata-item"><span>${label}</span><strong>${escapeHTML(metadata[key])}</strong></div>`)
+    .join('');
+  const recommendationEntry = recommendedSetting
+    ? `<div class="benchmark-metadata-item benchmark-recommendation"><span>Recommended setting</span><strong>${escapeHTML(recommendedSetting)}</strong></div>`
+    : '';
+  const allMetadataEntries = `${recommendationEntry}${metadataEntries}`;
+  const status = getResultStatus(slug, platform);
+  const statusLabels = {
+    playable: 'Playable',
+    'playable-with-compromises': 'Playable with compromises',
+    'not-playable': 'Not playable',
+    'failed-to-launch': 'Failed to launch',
+    'no-benchmark-data': 'No benchmark data',
+  };
+
+  metadataContainer.innerHTML = allMetadataEntries || '<p class="muted">Test conditions have not been added yet.</p>';
+  statusElement.textContent = statusLabels[status] || '';
+  statusElement.dataset.status = status;
+  statusElement.hidden = !status;
+  section.hidden = !allMetadataEntries && !status;
+}
+
 function getGamesByPlatform(platform) {
   if (platformGamesCache.has(platform)) return platformGamesCache.get(platform);
 
@@ -498,6 +565,7 @@ function renderGameCards(games, sortMode = 'latest') {
         <a href="${relativePath}" class="discovery-item" style="animation-delay: ${staggerDelay}s;">
           <div class="discovery-info">
             <span class="game-title">${escapeHTML(game.name)}</span>
+            ${getResultStatusLabel(getResultStatus(game.slug, game.platform)) ? `<span class="game-result-status" data-status="${getResultStatus(game.slug, game.platform)}">${getResultStatusLabel(getResultStatus(game.slug, game.platform))}</span>` : ''}
             <div class="game-meta-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
               <span class="platform-badge">${escapeHTML(getPlatformLabel(game.platform))}</span>
               ${updateDate ? `<span class="footer-sep" style="color: var(--line-strong, rgba(255,255,255,0.2));">·</span><small class="game-meta-date" style="font-size: 0.72rem; margin: 0;"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
@@ -615,6 +683,7 @@ function handleUnifiedSearchAndSort() {
             <a href="${getBenchmarkHref(item.slug, platform, item.year)}" class="device-game-item" style="animation-delay: ${staggerDelay}s;">
               <div style="display: flex; flex-direction: column; gap: 4px;">
                 <span>${escapeHTML(item.name)}</span>
+                ${getResultStatusLabel(getResultStatus(item.slug, platform)) ? `<span class="game-result-status" data-status="${getResultStatus(item.slug, platform)}">${getResultStatusLabel(getResultStatus(item.slug, platform))}</span>` : ''}
                 ${updateDate ? `<small class="game-meta-date"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
               </div>
               <i class="fa-solid fa-arrow-right" style="font-size: 0.85rem; color: var(--muted);"></i>
@@ -795,7 +864,7 @@ function renderDiscoveryGames() {
     return (Date.parse(rawDateB) || 0) - (Date.parse(rawDateA) || 0);
   });
 
-  const latestGames = allGames.slice(0, 10);
+  const latestGames = allGames.slice(0, 20);
   if (latestGames.length === 0) {
     container.innerHTML = '<div class="no-results" style="grid-column: 1 / -1;">No game tests available.</div>';
     return;
@@ -1110,6 +1179,7 @@ function renderBench() {
   const elements = getDOMElements();
 
   const updateDate = getGameUpdateDate(slug, platform);
+  renderBenchmarkDetails(slug, platform);
   if (updateDate && !document.getElementById('benchGameUpdateDate')) {
     const dateBadge = document.createElement('div');
     dateBadge.id = 'benchGameUpdateDate';
@@ -1240,7 +1310,7 @@ function initCleanHashNavigation() {
 }
 
 function initPrivacyPolicyModal() {
-  const policyLinks = document.querySelectorAll('a[href$="privacy-policy.html"]');
+  const policyLinks = document.querySelectorAll('a[href$="privacy-policy.html"], .footer-links a[href$=".html"]:not([href$="contacts.html"])');
   if (!policyLinks.length) return;
 
   const closeModal = () => {
@@ -1255,6 +1325,17 @@ function initPrivacyPolicyModal() {
     event.preventDefault();
     if (document.getElementById('privacyModal')) return;
 
+    const targetUrl = new URL(event.currentTarget.href, window.location.href);
+    const pageName = targetUrl.pathname.split('/').pop();
+    const pageTitles = {
+      'about.html': 'About BenchmarkResult',
+      'methodology.html': 'Testing Methodology',
+      'disclaimer.html': 'Disclaimer',
+      'terms.html': 'Terms of Use',
+      'privacy-policy.html': 'Privacy Policy',
+    };
+    const modalTitle = pageTitles[pageName] || 'BenchmarkResult';
+
     const modal = document.createElement('div');
     modal.id = 'privacyModal';
     modal.className = 'privacy-modal';
@@ -1265,14 +1346,14 @@ function initPrivacyPolicyModal() {
       <div class="privacy-modal-panel">
         <div class="privacy-modal-header">
           <div>
-            <span class="eyebrow">Legal</span>
-            <h2 id="privacyModalTitle">Privacy Policy</h2>
+            <span class="eyebrow">BenchmarkResult</span>
+            <h2 id="privacyModalTitle">${modalTitle}</h2>
           </div>
-          <button class="privacy-modal-close" type="button" aria-label="Close Privacy Policy">
+          <button class="privacy-modal-close" type="button" aria-label="Close dialog">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <div class="privacy-modal-body"><p>Loading Privacy Policy...</p></div>
+        <div class="privacy-modal-body"><p>Loading content...</p></div>
       </div>
     `;
     document.body.appendChild(modal);
@@ -1292,16 +1373,16 @@ function initPrivacyPolicyModal() {
     requestAnimationFrame(() => modal.classList.add('is-visible'));
 
     try {
-      const response = await fetch(event.currentTarget.href);
-      if (!response.ok) throw new Error('Privacy Policy could not be loaded');
+      const response = await fetch(targetUrl.href);
+      if (!response.ok) throw new Error('Page could not be loaded');
       const page = new DOMParser().parseFromString(await response.text(), 'text/html');
-      const article = page.querySelector('.policy-content');
+      const article = page.querySelector('.policy-content, .editorial-content');
       modal.querySelector('.privacy-modal-body').innerHTML = article
         ? article.innerHTML
-        : '<p>Privacy Policy could not be loaded.</p>';
+        : '<p>This content could not be loaded.</p>';
     } catch {
       modal.querySelector('.privacy-modal-body').innerHTML =
-        '<p>Privacy Policy could not be loaded right now. Please try again.</p>';
+        '<p>This content could not be loaded right now. Please try again.</p>';
     }
   };
 
@@ -1310,28 +1391,21 @@ function initPrivacyPolicyModal() {
 
 function initPrivacyPolicyFooter() {
   document.querySelectorAll('.footer .container').forEach((footerContainer) => {
-    const brandText = document.createElement('span');
-    brandText.className = 'footer-brand';
-    brandText.textContent = 'BenchmarkResult';
-
-    const sep1 = document.createElement('span');
-    sep1.className = 'footer-sep sep-1';
-    sep1.textContent = ' · ';
-
-    const copyText = document.createElement('span');
-    copyText.className = 'footer-copy';
-    copyText.textContent = '© 2026 HF Plays';
-
-    const sep2 = document.createElement('span');
-    sep2.className = 'footer-sep sep-2';
-    sep2.textContent = ' · ';
-
-    const link = document.createElement('a');
-    link.className = 'privacy-policy-footer-link';
-    link.href = buildRelativeHref('privacy-policy.html');
-    link.textContent = 'Privacy Policy';
-
-    footerContainer.replaceChildren(brandText, sep1, copyText, sep2, link);
+    footerContainer.innerHTML = `
+      <div class="footer-main">
+        <strong class="footer-brand">BenchmarkResult</strong>
+        <span class="footer-copy">Independent gaming performance testing by HF Plays.</span>
+      </div>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="${buildRelativeHref('about.html')}">About</a>
+        <a href="${buildRelativeHref('methodology.html')}">Testing Methodology</a>
+        <a href="${buildRelativeHref('disclaimer.html')}">Disclaimer</a>
+        <a href="${buildRelativeHref('terms.html')}">Terms</a>
+        <a href="${buildRelativeHref('privacy-policy.html')}">Privacy Policy</a>
+        <a href="${buildRelativeHref('contacts.html')}">Contact</a>
+      </nav>
+      <small class="footer-copy">© 2026 HF Plays. Results are based on the published test conditions.</small>
+    `;
   });
 }
 

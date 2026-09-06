@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Testing Methodology — BenchmarkResult</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+    <script src="assets/data/db-core.js"></script>
+    <script src="assets/data/db-partners.js"></script>
+    <script src="assets/device-core.js"></script>
+    <script src="assets/device-partners.js"></script>
+    <script src="assets/app.js"></script>
+</head>
+<body>
+    <nav class="nav"><div class="container nav-inner">
+        <a class="brand" href="index.html">Benchmark<span>Result</span> - HF Plays</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" type="button"><i class="fa-solid fa-bars"></i></button>
+        <div class="links" id="navLinks">
+            <a href="index.html">Home</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Mobile <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown-menu" data-dropdown-menu="device"></div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Desktop <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="nav-dropdown-menu" data-dropdown-menu="desktop"></div>
+            </div>
+            <a href="contacts.html">Contacts</a>
+            <a href="search.html" aria-label="Search" title="Search" class="nav-search-btn"><i class="fa-solid fa-magnifying-glass"></i></a>
+            <button class="view-toggle-btn" id="viewToggle" aria-label="Toggle Lite View" title="Switch to Lite Performance Mode" type="button"><i class="fa-solid fa-feather-pointed"></i></button>
+            <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme" title="Toggle Theme" type="button"><i class="fa-solid fa-sun"></i></button>
+        </div>
+    </div></nav>
+    <main class="container policy-page">
+        <div class="eyebrow anim-title">
+            <h1>Testing Methodology</h1>
+        </div>
+        <p class="policy-updated">How HF Plays selects, tests, records, and publishes benchmark results</p>
+        <article class="policy-content">
+            <div class="policy-bubble policy-intro">
+                <p>Every BenchmarkResult entry comes from a real gaming test published by HF Plays. The workflow below explains how games are selected, how the test is captured without adding recording load to the tested PC, which tools provide the metrics, and how the finished result reaches the archive.</p>
+            </div>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-gamepad"></i> Choosing the Game</h2>
+                <p>Games are selected for testing based on the current testing schedule, titles that are useful for a specific device, and requests from HF Plays subscribers. A requested game is considered alongside the hardware and the information that can make the result useful to viewers.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-video"></i> Capturing the Test</h2>
+                <p>The game runs on the PC or device being tested. Its video output is sent through an HDMI capture device to a separate recording device. This keeps the recording workload away from the test system, helping the published result represent gaming performance rather than the extra load of recording on the same PC.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-chart-line"></i> Measuring Performance</h2>
+                <p>MSI Afterburner and RivaTuner Statistics Server are used to display the performance overlay during the test. The overlay provides the Average FPS, 1% Low FPS, highest temperature, and other available hardware readings. These values are then associated with the tested game, device, resolution, and graphics settings in the benchmark record.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-film"></i> Editing the Recording</h2>
+                <p>After testing, the captured footage is reviewed and edited using DaVinci Resolve or Adobe Premiere Pro. The edit is intended to show the gameplay and the measurement overlay clearly, while keeping the test conditions and relevant performance information visible to the viewer.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-brands fa-youtube"></i> Publishing the Result</h2>
+                <p>The finished video is uploaded to the HF Plays YouTube channel. The benchmark data is then published to BenchmarkResult, usually on the following day after the video has been completed and uploaded. The website entry links the game, device, settings, FPS metrics, temperature readings, and video when available.</p>
+            </section>
+            <section class="policy-bubble">
+                <h2><i class="fa-solid fa-scale-balanced"></i> Comparing Results</h2>
+                <p>Compare entries only when resolution, graphics preset, game version, driver, power mode, and memory configuration are reasonably similar. Results can also vary with cooling, firmware, background processes, memory channel configuration, and ambient temperature. A published result is a record of the stated test conditions, not a guarantee for every device.</p>
+            </section>
+        </article>
+    </main>
+    <footer class="footer"><div class="container"></div></footer>
+</body>
+</html>
