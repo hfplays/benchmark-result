@@ -5,7 +5,6 @@
 window.DEVICE_REGISTRY = window.DEVICE_REGISTRY || {};
 window.NAV_MOBILE_ITEMS = window.NAV_MOBILE_ITEMS || [];
 window.NAV_DESKTOP_ITEMS = window.NAV_DESKTOP_ITEMS || [];
-window.NAV_PHONE_ITEMS = window.NAV_PHONE_ITEMS || [];
 
 // Tambahkan platform/device partner di sini:
 Object.assign(window.DEVICE_REGISTRY, {

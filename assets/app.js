@@ -179,7 +179,6 @@ const platformGamesCache = new Map();
 const DEVICE_REGISTRY = window.DEVICE_REGISTRY || {};
 const NAV_MOBILE_ITEMS = window.NAV_MOBILE_ITEMS || [];
 const NAV_DESKTOP_ITEMS = window.NAV_DESKTOP_ITEMS || [];
-const NAV_PHONE_ITEMS = window.NAV_PHONE_ITEMS || [];
 
 // ============================================================================
 // Helpers
@@ -388,7 +387,6 @@ function renderNavDropdown(key) {
   let items = [];
   if (key === 'device' || key === 'mobile') items = NAV_MOBILE_ITEMS;
   else if (key === 'desktop') items = NAV_DESKTOP_ITEMS;
-  else if (key === 'phone') items = NAV_PHONE_ITEMS;
 
   const overviewItem = items.find((item) => item.isOverview);
   const deviceItems = items.filter((item) => !item.isOverview);
@@ -431,7 +429,6 @@ function initNavDropdowns() {
   renderNavDropdown('device');
   renderNavDropdown('mobile');
   renderNavDropdown('desktop');
-  renderNavDropdown('phone');
 
   document.addEventListener('click', (event) => {
     const toggleBtn = event.target.closest('.nav-dropdown-toggle');

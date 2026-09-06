@@ -5,7 +5,6 @@
 window.DEVICE_REGISTRY = window.DEVICE_REGISTRY || {};
 window.NAV_MOBILE_ITEMS = window.NAV_MOBILE_ITEMS || [];
 window.NAV_DESKTOP_ITEMS = window.NAV_DESKTOP_ITEMS || [];
-window.NAV_PHONE_ITEMS = window.NAV_PHONE_ITEMS || [];
 
 Object.assign(window.DEVICE_REGISTRY, {
     'ryzen-5-7430u': {
@@ -72,16 +71,6 @@ Object.assign(window.DEVICE_REGISTRY, {
         ],
         getData: () => window.BENCHMARK_GAMES?.['core-2-quad-q8400-gt-1030-gd5'] || {},
     },
-    'iqoo-z9x': {
-        label: 'iQOO Z9x',
-        category: 'phone',
-        getData: () => window.BENCHMARK_GAMES?.['iqoo-z9x'] || (typeof gamesIqooZ9x !== 'undefined' ? gamesIqooZ9x : {}),
-    },
-    'poco-x3-pro': {
-        label: 'POCO X3 Pro',
-        category: 'phone',
-        getData: () => window.BENCHMARK_GAMES?.['poco-x3-pro'] || (typeof gamesPocoX3Pro !== 'undefined' ? gamesPocoX3Pro : {}),
-    },
 });
 
 window.NAV_MOBILE_ITEMS.push(
@@ -97,6 +86,3 @@ window.NAV_DESKTOP_ITEMS.push(
     { label: 'Core 2 Quad Q8400 + GT 1030 GD5', href: 'device.html?platform=core-2-quad-q8400-gt-1030-gd5', platform: 'core-2-quad-q8400-gt-1030-gd5' }
 );
 
-window.NAV_PHONE_ITEMS.push(
-    { label: 'Phone', href: 'javascript:void(0)', isNotReady: true, status: 'Coming Soon' }
-);
