@@ -5,7 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>contact — BenchmarkResult - HF Plays</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="description"
+        content="Contact HF Plays about benchmark corrections, game requests, hardware questions, and testing feedback.">
+    <link rel="canonical" href="https://resources.hfplays.com/contact.html">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <link rel="stylesheet" href="assets/style.css">
     <style>
@@ -128,14 +131,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Option: Discord Webhook (Aktif) -->
-                                <div class="custom-option" data-value="discord"
-                                    onclick="selectPlatform('discord', '<i class=\'fa-brands fa-discord icon-discord\'></i> Send via Discord', this)">
-                                    <div class="custom-option-label">
-                                        <i class="fa-brands fa-discord icon-discord"></i> Send via Discord
-                                    </div>
-                                </div>
-
                                 <!-- Option: WhatsApp (Aktif) -->
                                 <div class="custom-option" data-value="whatsapp"
                                     onclick="selectPlatform('whatsapp', '<i class=\'fa-brands fa-whatsapp icon-wa\'></i> Send via WhatsApp', this)">
@@ -243,14 +238,13 @@
         });
 
         // Form Submit Handler
-        async function handleFormSubmit(e) {
+        function handleFormSubmit(e) {
             e.preventDefault();
 
             const platform = document.getElementById('platformSelect').value;
             const name = document.getElementById('name').value.trim();
             const subject = document.getElementById('subject').value.trim();
             const message = document.getElementById('message').value.trim();
-            const submitButton = e.currentTarget.querySelector('button[type="submit"]');
 
             if (platform === 'email') {
                 const emailSubject = encodeURIComponent(`${subject} - ${name}`);
@@ -261,41 +255,6 @@
                 const waNumber = '6283874760794';
                 const waText = `New message via BenchmarkResult - HF Plays Website:%0A%0A*Name:* ${encodeURIComponent(name)}%0A*Subject:* ${encodeURIComponent(subject)}%0A*Message:*%0A${encodeURIComponent(message)}`;
                 window.open(`https://wa.me/${waNumber}?text=${waText}`, '_blank');
-            }
-            else if (platform === 'discord') {
-                const webhookUrl = 'https://discord.com/api/webhooks/1546789276165865494/pS0UTaB192_hKwlrSW6BH8h2zOMO8LsZ_RgLgX46zBxzXk9IcDGwMLer20nBEVOHTbH_';
-                submitButton.disabled = true;
-                submitButton.textContent = 'Sending...';
-
-                try {
-                    const response = await fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            username: 'Website Chat',
-                            avatar_url: 'https://yt3.googleusercontent.com/JkInWKSdBan7pEdvh_FKKKb04NXCHf-A7T3BUuAaEWcV5Cp5-_YXaXT5EAk--RFhYv3vabzt8A=s900-c-k-c0x00ffffff-no-rj',
-                            embeds: [{
-                                title: subject,
-                                color: 0x5865F2,
-                                fields: [
-                                    { name: 'Name', value: name, inline: true },
-                                    { name: 'Message', value: message },
-                                ],
-                                timestamp: new Date().toISOString(),
-                            }],
-                        }),
-                    });
-
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    alert('Message sent successfully via Discord.');
-                    e.currentTarget.reset();
-                } catch (error) {
-                    console.error('Discord webhook error:', error);
-                    alert('Unable to send the message via Discord. Please try again or use Email.');
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Submit Message';
-                }
             }
         }
     </script>

@@ -25,8 +25,8 @@ function setupThemeToggle() {
 
   const updateIcons = (theme) => {
     toggleBtns.forEach((btn) => {
-      btn.innerHTML = theme === 'dark' 
-        ? '<i class="fa-solid fa-sun"></i>' 
+      btn.innerHTML = theme === 'dark'
+        ? '<i class="fa-solid fa-sun"></i>'
         : '<i class="fa-solid fa-moon"></i>';
       btn.setAttribute('title', theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
       btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode');
@@ -125,38 +125,52 @@ function initMobileHeaderMenu() {
 // Privacy Policy Top Notice
 // ============================================================================
 
-(function initPrivacyTopNotice() {
-  const NOTICE_DISMISSED_KEY = 'hf_privacy_top_dismissed';
-  if (localStorage.getItem(NOTICE_DISMISSED_KEY)) return;
+const PRIVACY_CONSENT_KEY = 'hf_ads_consent';
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const nav = document.querySelector('.nav') || document.querySelector('nav');
-    if (!nav) return;
+function renderPrivacyChoices() {
+  if (document.getElementById('privacyTopNotice')) return;
 
-    const noticeBar = document.createElement('div');
-    noticeBar.id = 'privacyTopNotice';
-    noticeBar.className = 'privacy-top-notice';
-    noticeBar.innerHTML = `
-      <div class="container privacy-top-notice-inner">
-        <div class="privacy-top-notice-content">
-          <i class="fa-solid fa-shield-halved privacy-top-notice-icon"></i>
-          <span>We respect your privacy and do not track personal data. Read our <a href="${buildRelativeHref('privacy-policy.html')}" class="privacy-top-notice-link">Privacy Policy</a>.</span>
-        </div>
-        <button class="privacy-top-notice-close" id="closePrivacyNoticeBtn" type="button" aria-label="Dismiss Privacy Notice">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+  const nav = document.querySelector('.nav') || document.querySelector('nav');
+  if (!nav) return;
+
+  const noticeBar = document.createElement('div');
+  noticeBar.id = 'privacyTopNotice';
+  noticeBar.className = 'privacy-top-notice';
+  noticeBar.innerHTML = `
+    <div class="container privacy-top-notice-inner">
+      <div class="privacy-top-notice-content">
+        <i class="fa-solid fa-shield-halved privacy-top-notice-icon"></i>
+        <span>We use local storage for preferences and may use advertising cookies after consent. Read our <a href="${buildRelativeHref('privacy-policy.html')}" class="privacy-top-notice-link">Privacy Policy</a>.</span>
       </div>
-    `;
+      <div class="privacy-top-notice-actions">
+        <button class="privacy-top-notice-choice" id="rejectAdsBtn" type="button">Reject optional ads</button>
+        <button class="privacy-top-notice-choice is-primary" id="acceptAdsBtn" type="button">Accept optional ads</button>
+      </div>
+    </div>
+  `;
 
-    nav.insertAdjacentElement('afterend', noticeBar);
-    requestAnimationFrame(() => noticeBar.classList.add('show'));
+  nav.insertAdjacentElement('afterend', noticeBar);
+  requestAnimationFrame(() => noticeBar.classList.add('show'));
 
-    document.getElementById('closePrivacyNoticeBtn')?.addEventListener('click', () => {
-      localStorage.setItem(NOTICE_DISMISSED_KEY, 'true');
-      noticeBar.classList.remove('show');
-      setTimeout(() => noticeBar.remove(), 250);
-    });
-  });
+  const saveConsent = (value) => {
+    localStorage.setItem(PRIVACY_CONSENT_KEY, value);
+    document.documentElement.dataset.adsConsent = value;
+    noticeBar.classList.remove('show');
+    setTimeout(() => noticeBar.remove(), 250);
+  };
+
+  document.getElementById('rejectAdsBtn')?.addEventListener('click', () => saveConsent('rejected'));
+  document.getElementById('acceptAdsBtn')?.addEventListener('click', () => saveConsent('accepted'));
+}
+
+(function initPrivacyTopNotice() {
+  const savedConsent = localStorage.getItem(PRIVACY_CONSENT_KEY);
+  if (savedConsent) {
+    document.documentElement.dataset.adsConsent = savedConsent;
+    return;
+  }
+
+  document.addEventListener('DOMContentLoaded', renderPrivacyChoices);
 })();
 
 // ============================================================================
@@ -276,7 +290,7 @@ function getGamesByPlatform(platform) {
   if (platformGamesCache.has(platform)) return platformGamesCache.get(platform);
 
   const flatGames = {};
-  
+
   if (window._GAME_NAMES?.[platform]) {
     Object.assign(flatGames, window._GAME_NAMES[platform]);
   }
@@ -303,7 +317,7 @@ function getAllGames() {
 
   Object.entries(DEVICE_REGISTRY).forEach(([platformSlug, config]) => {
     const rawData = config.getData ? config.getData() : (window.BENCHMARK_GAMES?.[platformSlug] || {});
-    
+
     Object.entries(rawData).forEach(([key, value]) => {
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         const year = key;
@@ -548,10 +562,10 @@ function renderGameCards(games, sortMode = 'latest') {
   const sortedGames = sortMode === 'alphabetical'
     ? [...games].sort((a, b) => collator.compare(a.name, b.name))
     : [...games].sort((a, b) => {
-        const timeA = Date.parse(window.BENCHMARK_GAME_UPDATED?.[a.platform]?.[a.slug] || window.BENCHMARK_UPDATED?.[a.platform] || '') || 0;
-        const timeB = Date.parse(window.BENCHMARK_GAME_UPDATED?.[b.platform]?.[b.slug] || window.BENCHMARK_UPDATED?.[b.platform] || '') || 0;
-        return timeB - timeA;
-      });
+      const timeA = Date.parse(window.BENCHMARK_GAME_UPDATED?.[a.platform]?.[a.slug] || window.BENCHMARK_UPDATED?.[a.platform] || '') || 0;
+      const timeB = Date.parse(window.BENCHMARK_GAME_UPDATED?.[b.platform]?.[b.slug] || window.BENCHMARK_UPDATED?.[b.platform] || '') || 0;
+      return timeB - timeA;
+    });
 
   resultsContainer.innerHTML = sortedGames
     .map((game, index) => {
@@ -825,7 +839,11 @@ function initBenchmarkTemplate() {
 
   const notesElement = document.getElementById('gameNotes');
   const note = window.BENCHMARK_NOTES?.[platform]?.[slug];
-  if (notesElement && note) notesElement.innerHTML = `<strong>Conclusion:</strong> ${note}`;
+  if (notesElement) {
+    notesElement.innerHTML = note
+      ? `<strong>Conclusion:</strong> ${escapeHTML(note)}`
+      : `This entry records ${escapeHTML(gameName)} on ${escapeHTML(getPlatformLabel(platform))}. Compare the Average FPS and 1% Low values with the listed resolution, graphics preset, and test conditions before drawing a conclusion.`;
+  }
 
   if (resolution && dropdown) {
     if (!resolutions.length) {
@@ -959,6 +977,23 @@ function renderDevicePageUpdate() {
     dateBadge.style.fontSize = '0.85rem';
     dateBadge.innerHTML = `<i class="fa-regular fa-calendar"></i> Updated ${formattedDate}`;
     heading.insertAdjacentElement('afterend', dateBadge);
+  }
+}
+
+function syncCanonicalMetadata() {
+  const canonical = document.querySelector('link[rel="canonical"]');
+  const isDynamicPage = document.body.dataset.game || document.getElementById('deviceTitle');
+  if (!canonical || !isDynamicPage) return;
+
+  const url = new URL(window.location.href);
+  url.hash = '';
+  canonical.href = url.href;
+
+  const description = document.querySelector('meta[name="description"]');
+  if (description && document.body.dataset.game) {
+    const gameName = document.getElementById('gameTitle')?.textContent || 'game';
+    const platformName = getPlatformLabel(document.body.dataset.platform);
+    description.content = `Detailed ${gameName} gaming benchmark on ${platformName}, including Average FPS, 1% Low FPS, temperatures, settings, and test conditions.`;
   }
 }
 
@@ -1400,12 +1435,22 @@ function initPrivacyPolicyFooter() {
         <a href="${buildRelativeHref('terms.html')}">Terms</a>
         <a href="${buildRelativeHref('privacy-policy.html')}">Privacy Policy</a>
         <a href="${buildRelativeHref('contact.html')}">Contact</a>
+        <button class="footer-privacy-settings" id="privacySettingsBtn" type="button">Privacy choices</button>
       </nav>
       <small class="footer-copy footer-legal">
         <span>© 2026 HF Plays.</span>
         <span>Results are based on the published test conditions.</span>
       </small>
     `;
+  });
+
+  document.querySelectorAll('#privacySettingsBtn').forEach((button) => {
+    button.addEventListener('click', () => {
+      localStorage.removeItem(PRIVACY_CONSENT_KEY);
+      document.documentElement.removeAttribute('data-ads-consent');
+      renderPrivacyChoices();
+      document.getElementById('privacyTopNotice')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   });
 }
 
@@ -1437,6 +1482,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBench();
   renderGameVideo();
   initDeviceTemplate();
+  syncCanonicalMetadata();
   renderDevicePageUpdate();
   handleUnifiedSearchAndSort();
   renderPlayableGameList();
