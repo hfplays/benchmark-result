@@ -1307,7 +1307,7 @@ function initCleanHashNavigation() {
 }
 
 function initPrivacyPolicyModal() {
-  const policyLinks = document.querySelectorAll('a[href$="privacy-policy.html"], .footer-links a[href$=".html"]:not([href$="contacts.html"])');
+  const policyLinks = document.querySelectorAll('a[href$="privacy-policy.html"], .footer-links a[href$=".html"]:not([href$="contact.html"])');
   if (!policyLinks.length) return;
 
   const closeModal = () => {
@@ -1399,7 +1399,7 @@ function initPrivacyPolicyFooter() {
         <a href="${buildRelativeHref('disclaimer.html')}">Disclaimer</a>
         <a href="${buildRelativeHref('terms.html')}">Terms</a>
         <a href="${buildRelativeHref('privacy-policy.html')}">Privacy Policy</a>
-        <a href="${buildRelativeHref('contacts.html')}">Contact</a>
+        <a href="${buildRelativeHref('contact.html')}">Contact</a>
       </nav>
       <small class="footer-copy footer-legal">
         <span>© 2026 HF Plays.</span>
