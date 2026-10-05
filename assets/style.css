@@ -990,6 +990,9 @@ main {
   padding: 6px;
   margin: 0;
   min-width: 100%;
+  max-height: min(60vh, 480px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: none;
   z-index: 1002;
 }
