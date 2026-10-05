@@ -576,6 +576,8 @@ function initNavSearch() {
 
   const input = modal.querySelector('.nav-search-input');
   const suggestions = modal.querySelector('.nav-search-suggestions');
+  const modalHistoryKey = 'navSearchModalOpen';
+  let previousHistoryState = window.history.state;
   const renderSuggestions = () => {
     const query = input.value.trim().toLocaleLowerCase();
     const matches = getAllGames()
@@ -610,17 +612,32 @@ function initNavSearch() {
       `;
     }).join('');
   };
-  const close = () => {
-    modal.classList.remove('is-visible');
-    document.body.classList.remove('modal-open');
-    searchBtn.setAttribute('aria-expanded', 'false');
+  const syncModalState = (isOpen) => {
+    modal.classList.toggle('is-visible', isOpen);
+    document.body.classList.toggle('modal-open', isOpen);
+    searchBtn.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) renderSuggestions();
   };
   const open = () => {
-    modal.classList.add('is-visible');
-    document.body.classList.add('modal-open');
-    searchBtn.setAttribute('aria-expanded', 'true');
-    renderSuggestions();
+    if (modal.classList.contains('is-visible')) return;
+    previousHistoryState = window.history.state;
+    const nextState = previousHistoryState && typeof previousHistoryState === 'object'
+      ? { ...previousHistoryState, [modalHistoryKey]: true }
+      : { [modalHistoryKey]: true };
+    window.history.pushState(nextState, '', window.location.href);
+    syncModalState(true);
     input.focus();
+  };
+  const close = () => {
+    if (window.matchMedia('(max-width: 600px)').matches && window.history.state?.[modalHistoryKey]) {
+      window.history.back();
+      return;
+    }
+    if (window.history.state?.[modalHistoryKey]) {
+      window.history.replaceState(previousHistoryState, '', window.location.href);
+    }
+    syncModalState(false);
+    searchBtn.focus();
   };
 
   searchBtn.setAttribute('aria-expanded', 'false');
@@ -630,12 +647,29 @@ function initNavSearch() {
   });
   modal.querySelector('.nav-search-close').addEventListener('click', close);
   modal.addEventListener('click', (event) => {
-    if (event.target === modal) close();
+    if (event.target === modal && !window.matchMedia('(max-width: 600px)').matches) {
+      close();
+    }
+  });
+  modal.querySelector('.nav-search-form').addEventListener('submit', () => {
+    window.history.replaceState(previousHistoryState, '', window.location.href);
+  });
+  suggestions.addEventListener('click', (event) => {
+    if (event.target.closest('a.nav-search-suggestion')) {
+      window.history.replaceState(previousHistoryState, '', window.location.href);
+    }
+  });
+  window.addEventListener('popstate', (event) => {
+    syncModalState(Boolean(event.state?.[modalHistoryKey]));
+    if (!modal.classList.contains('is-visible')) searchBtn.focus();
   });
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && modal.classList.contains('is-visible')) {
+    if (
+      event.key === 'Escape'
+      && modal.classList.contains('is-visible')
+      && !window.matchMedia('(max-width: 600px)').matches
+    ) {
       close();
-      searchBtn.focus();
     }
   });
 
