@@ -238,7 +238,8 @@ a {
    Top Privacy Policy Notice Bar (Under Navbar)
    ============================================================================ */
 .privacy-top-notice {
-  position: relative;
+  position: sticky;
+  top: var(--privacy-sticky-top, 70px);
   z-index: 40;
   background: var(--panel-solid);
   border-bottom: 1px solid var(--line-strong);

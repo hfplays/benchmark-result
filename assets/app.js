@@ -150,13 +150,26 @@ function renderPrivacyChoices() {
   `;
 
   nav.insertAdjacentElement('afterend', noticeBar);
+  const updateStickyOffset = () => {
+    noticeBar.style.setProperty('--privacy-sticky-top', `${nav.getBoundingClientRect().height}px`);
+  };
+  updateStickyOffset();
+  window.addEventListener('resize', updateStickyOffset);
+  const navResizeObserver = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(updateStickyOffset)
+    : null;
+  navResizeObserver?.observe(nav);
   requestAnimationFrame(() => noticeBar.classList.add('show'));
 
   const saveConsent = (value) => {
     localStorage.setItem(PRIVACY_CONSENT_KEY, value);
     document.documentElement.dataset.adsConsent = value;
     noticeBar.classList.remove('show');
-    setTimeout(() => noticeBar.remove(), 250);
+    window.setTimeout(() => {
+      navResizeObserver?.disconnect();
+      window.removeEventListener('resize', updateStickyOffset);
+      noticeBar.remove();
+    }, 250);
   };
 
   document.getElementById('rejectAdsBtn')?.addEventListener('click', () => saveConsent('rejected'));
