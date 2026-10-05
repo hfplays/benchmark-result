@@ -576,6 +576,40 @@ function initNavSearch() {
 
   const input = modal.querySelector('.nav-search-input');
   const suggestions = modal.querySelector('.nav-search-suggestions');
+  const renderSuggestions = () => {
+    const query = input.value.trim().toLocaleLowerCase();
+    const matches = getAllGames()
+      .filter((game) => (
+        !query
+        || game.name.toLocaleLowerCase().includes(query)
+        || game.slug.toLocaleLowerCase().includes(query)
+        || game.platform.toLocaleLowerCase().includes(query)
+        || getPlatformLabel(game.platform).toLocaleLowerCase().includes(query)
+      ))
+      .sort((a, b) => {
+        const timeA = Date.parse(window.BENCHMARK_GAME_UPDATED?.[a.platform]?.[a.slug] || window.BENCHMARK_UPDATED?.[a.platform] || '') || 0;
+        const timeB = Date.parse(window.BENCHMARK_GAME_UPDATED?.[b.platform]?.[b.slug] || window.BENCHMARK_UPDATED?.[b.platform] || '') || 0;
+        return timeB - timeA;
+      });
+
+    if (!matches.length) {
+      suggestions.innerHTML = '<p class="nav-search-hint">No games found.</p>';
+      return;
+    }
+
+    suggestions.innerHTML = matches.map((game) => {
+      const updateDate = getGameUpdateDate(game.slug, game.platform);
+      return `
+        <a class="nav-search-suggestion" href="${escapeHTML(getBenchmarkHref(game.slug, game.platform, game.year))}" role="option">
+          <span class="nav-search-suggestion-main">
+            <span class="nav-search-suggestion-title">${escapeHTML(game.name)}</span>
+            ${updateDate ? `<small class="nav-search-suggestion-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Tested ${escapeHTML(updateDate)}</small>` : ''}
+          </span>
+          <span class="platform-badge">${escapeHTML(getPlatformLabel(game.platform))}</span>
+        </a>
+      `;
+    }).join('');
+  };
   const close = () => {
     modal.classList.remove('is-visible');
     document.body.classList.remove('modal-open');
@@ -585,6 +619,7 @@ function initNavSearch() {
     modal.classList.add('is-visible');
     document.body.classList.add('modal-open');
     searchBtn.setAttribute('aria-expanded', 'true');
+    renderSuggestions();
     input.focus();
   };
 
@@ -604,32 +639,7 @@ function initNavSearch() {
     }
   });
 
-  input.addEventListener('input', () => {
-    const query = input.value.trim().toLocaleLowerCase();
-    if (!query) {
-      suggestions.innerHTML = '<p class="nav-search-hint">Start typing to find a game.</p>';
-      return;
-    }
-
-    const matches = getAllGames().filter((game) => (
-      game.name.toLocaleLowerCase().includes(query)
-      || game.slug.toLocaleLowerCase().includes(query)
-      || game.platform.toLocaleLowerCase().includes(query)
-      || getPlatformLabel(game.platform).toLocaleLowerCase().includes(query)
-    )).slice(0, 6);
-
-    if (!matches.length) {
-      suggestions.innerHTML = '<p class="nav-search-hint">No games found. Press Enter to see all results.</p>';
-      return;
-    }
-
-    suggestions.innerHTML = matches.map((game) => `
-      <a class="nav-search-suggestion" href="${escapeHTML(getBenchmarkHref(game.slug, game.platform, game.year))}" role="option">
-        <span>${escapeHTML(game.name)}</span>
-        <small>${escapeHTML(getPlatformLabel(game.platform))}</small>
-      </a>
-    `).join('');
-  });
+  input.addEventListener('input', renderSuggestions);
 }
 
 // ============================================================================
@@ -663,10 +673,12 @@ function renderGameCards(games, sortMode = 'latest') {
         <a href="${relativePath}" class="discovery-item" style="animation-delay: ${staggerDelay}s;">
           <div class="discovery-info">
             <span class="game-title">${escapeHTML(game.name)}</span>
-            ${getResultStatusLabel(getResultStatus(game.slug, game.platform)) ? `<span class="game-result-status" data-status="${getResultStatus(game.slug, game.platform)}">${getResultStatusLabel(getResultStatus(game.slug, game.platform))}</span>` : ''}
             <div class="game-meta-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
               <span class="platform-badge">${escapeHTML(getPlatformLabel(game.platform))}</span>
-              ${updateDate ? `<span class="footer-sep" style="color: var(--line-strong, rgba(255,255,255,0.2));">·</span><small class="game-meta-date" style="font-size: 0.72rem; margin: 0;"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
+            </div>
+            <div class="game-meta-row discovery-status-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+              ${updateDate ? `<small class="game-meta-date" style="font-size: 0.72rem; margin: 0;"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
+              ${getResultStatusLabel(getResultStatus(game.slug, game.platform)) ? `<span class="game-result-status" data-status="${getResultStatus(game.slug, game.platform)}">${getResultStatusLabel(getResultStatus(game.slug, game.platform))}</span>` : ''}
             </div>
           </div>
           <i class="fa-solid fa-arrow-right discovery-arrow"></i>
@@ -781,10 +793,14 @@ function handleUnifiedSearchAndSort() {
           const staggerDelay = (index * 0.05).toFixed(2);
           return `
             <a href="${getBenchmarkHref(item.slug, platform, item.year)}" class="device-game-item" style="animation-delay: ${staggerDelay}s;">
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <span>${escapeHTML(item.name)}</span>
-                ${getResultStatusLabel(getResultStatus(item.slug, platform)) ? `<span class="game-result-status" data-status="${getResultStatus(item.slug, platform)}">${getResultStatusLabel(getResultStatus(item.slug, platform))}</span>` : ''}
-                ${updateDate ? `<small class="game-meta-date"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
+              <div class="device-game-info">
+                <div class="device-game-title-row">
+                  <span>${escapeHTML(item.name)}</span>
+                </div>
+                <div class="game-meta-row device-game-meta-row">
+                  ${updateDate ? `<small class="game-meta-date"><i class="fa-regular fa-calendar"></i> Tested ${updateDate}</small>` : ''}
+                  ${getResultStatusLabel(getResultStatus(item.slug, platform)) ? `<span class="game-result-status" data-status="${getResultStatus(item.slug, platform)}">${getResultStatusLabel(getResultStatus(item.slug, platform))}</span>` : ''}
+                </div>
               </div>
               <i class="fa-solid fa-arrow-right" style="font-size: 0.85rem; color: var(--muted);"></i>
             </a>
