@@ -545,6 +545,93 @@ function initResponsiveSearchNav() {
   handleLayoutChange();
 }
 
+function initNavSearch() {
+  const searchBtn = document.querySelector('.nav-search-btn') || document.querySelector('a[href*="search.html"]');
+  if (!searchBtn || document.getElementById('navSearchModal')) return;
+
+  searchBtn.setAttribute('aria-haspopup', 'dialog');
+  searchBtn.setAttribute('aria-controls', 'navSearchModal');
+  searchBtn.removeAttribute('href');
+
+  const modal = document.createElement('div');
+  modal.id = 'navSearchModal';
+  modal.className = 'nav-search-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', 'Search games');
+  modal.innerHTML = `
+    <div class="nav-search-panel">
+      <form class="nav-search-form" action="${escapeHTML(buildRelativeHref('search.html'))}" method="get" role="search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" name="q" class="nav-search-input" placeholder="Search games..." autocomplete="off" aria-label="Search games" aria-controls="navSearchSuggestions">
+        <button type="submit" class="nav-search-submit" aria-label="Search"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        <button type="button" class="nav-search-close" aria-label="Close search"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </form>
+      <div class="nav-search-suggestions" id="navSearchSuggestions" role="listbox" aria-label="Matching games">
+        <p class="nav-search-hint">Start typing to find a game.</p>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const input = modal.querySelector('.nav-search-input');
+  const suggestions = modal.querySelector('.nav-search-suggestions');
+  const close = () => {
+    modal.classList.remove('is-visible');
+    document.body.classList.remove('modal-open');
+    searchBtn.setAttribute('aria-expanded', 'false');
+  };
+  const open = () => {
+    modal.classList.add('is-visible');
+    document.body.classList.add('modal-open');
+    searchBtn.setAttribute('aria-expanded', 'true');
+    input.focus();
+  };
+
+  searchBtn.setAttribute('aria-expanded', 'false');
+  searchBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    open();
+  });
+  modal.querySelector('.nav-search-close').addEventListener('click', close);
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) close();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('is-visible')) {
+      close();
+      searchBtn.focus();
+    }
+  });
+
+  input.addEventListener('input', () => {
+    const query = input.value.trim().toLocaleLowerCase();
+    if (!query) {
+      suggestions.innerHTML = '<p class="nav-search-hint">Start typing to find a game.</p>';
+      return;
+    }
+
+    const matches = getAllGames().filter((game) => (
+      game.name.toLocaleLowerCase().includes(query)
+      || game.slug.toLocaleLowerCase().includes(query)
+      || game.platform.toLocaleLowerCase().includes(query)
+      || getPlatformLabel(game.platform).toLocaleLowerCase().includes(query)
+    )).slice(0, 6);
+
+    if (!matches.length) {
+      suggestions.innerHTML = '<p class="nav-search-hint">No games found. Press Enter to see all results.</p>';
+      return;
+    }
+
+    suggestions.innerHTML = matches.map((game) => `
+      <a class="nav-search-suggestion" href="${escapeHTML(getBenchmarkHref(game.slug, game.platform, game.year))}" role="option">
+        <span>${escapeHTML(game.name)}</span>
+        <small>${escapeHTML(getPlatformLabel(game.platform))}</small>
+      </a>
+    `).join('');
+  });
+}
+
 // ============================================================================
 // Search & Sort Handlers
 // ============================================================================
@@ -600,6 +687,8 @@ function handleUnifiedSearchAndSort() {
   if (globalSearchContainer) {
     const sortButtons = document.querySelectorAll('[data-search-sort]');
     const allGames = getAllGames();
+    const initialQuery = new URLSearchParams(window.location.search).get('q') || '';
+    if (searchInput) searchInput.value = initialQuery;
 
     const performGlobalSearch = () => {
       const activeSort = document.querySelector('[data-search-sort].is-active')?.dataset.searchSort || 'latest';
@@ -1493,6 +1582,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavDropdowns();
   initComingSoonControls();
   initResponsiveSearchNav();
+  initNavSearch();
 
   const platform = getCurrentPlatform();
   const platformGames = getGamesByPlatform(platform);
