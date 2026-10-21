@@ -1578,7 +1578,7 @@ function initPrivacyPolicyFooter() {
     footerContainer.innerHTML = `
       <div class="footer-main">
         <strong class="footer-brand">BenchmarkResult</strong>
-        <span class="footer-copy">Independent gaming performance testing by HF Plays.</span>
+        <span class="footer-copy">Gaming performance testing by HF Plays.</span>
       </div>
       <nav class="footer-links" aria-label="Footer navigation">
         <a href="${buildRelativeHref('about.html')}">About</a>
@@ -1590,8 +1590,8 @@ function initPrivacyPolicyFooter() {
         <button class="footer-privacy-settings" id="privacySettingsBtn" type="button">Privacy choices</button>
       </nav>
       <small class="footer-copy footer-legal">
-        <span>© 2026 HF Plays.</span>
-        <span>Results are based on the published test conditions.</span>
+        <span>© 2026 HF Plays</span>
+        <span>All Rights Reserved.</span>
       </small>
     `;
   });
